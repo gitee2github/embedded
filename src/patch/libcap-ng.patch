@@ -1,0 +1,46 @@
+From b880029c8870c7e4267142e456783399b1c45ae0 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:06:35 +0800
+Subject: [PATCH] split rpm libcap-ng utils
+
+---
+ libcap-ng.spec | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/libcap-ng.spec b/libcap-ng.spec
+index 5c4caf8..e898fdb 100644
+--- a/libcap-ng.spec
++++ b/libcap-ng.spec
+@@ -29,6 +29,16 @@ Requires: pkgconfig
+ The %{name}-devel package contains the files needed for developing
+ applications that need to use the %{name} library.
+ 
++%package utils
++Summary: Utilities for analyzing and setting file capabilities
++License: GPLv2+
++Requires: %{name} = %{version}-%{release}
++
++%description utils
++The libcap-ng-utils package contains applications to analyze the
++posix capabilities of all the program running on a system. It also
++lets you set the file system based capabilities.
++
+ %package -n python2-libcap-ng
+ %{?python_provide:%python_provide python2-libcap-ng}
+ Summary: Python2 bindings for libcap-ng library
+@@ -84,9 +94,11 @@ make check
+ %files
+ %{!?_licensedir:%global license %%doc}
+ %license COPYING.LIB COPYING
+-%attr(0755,root,root) %{_bindir}/*
+ /%{_lib}/libcap-ng.so.*
+ 
++%files utils
++%attr(0755,root,root) %{_bindir}/*
++
+ %files devel
+ %attr(0644,root,root) %{_includedir}/cap-ng.h
+ %{_libdir}/libcap-ng.so
+-- 
+2.30.0.windows.2
+

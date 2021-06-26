@@ -1,0 +1,52 @@
+From 6a654a0365ca1e26b5c06462e466d6e73f4d71d2 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:17:46 +0800
+Subject: [PATCH] split rpm idn2
+
+---
+ libidn2.spec | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/libidn2.spec b/libidn2.spec
+index 913d7cc..2be4a01 100644
+--- a/libidn2.spec
++++ b/libidn2.spec
+@@ -13,7 +13,6 @@ Patch1:         Implement-full-roundtrip-for-lookup-functionality.patch
+ BuildRequires:  gcc gettext libunistring-devel autoconf texinfo automake
+ Provides:       bundled(gnulib)
+ Provides:       idn2
+-Obsoletes:      idn2
+ 
+ %description
+ Libidn2 is a free software implementation of IDNA2008, Punycode and TR46.
+@@ -27,6 +26,14 @@ Requires:       pkgconfig
+ %description    devel
+ Files for %{name} development
+ 
++%package -n     idn2
++Summary:        IDNA2008 internationalized domain names conversion tool
++Requires:       %{name} = %{version}-%{release}
++
++%description -n idn2
++The idn2 package contains the idn2 command line tool for testing
++IDNA2008 conversions.
++
+ %package_help
+ 
+ #Build sections
+@@ -57,10 +64,11 @@ make %{?_smp_mflags} -C tests check
+ %files -f %{name}.lang
+ %doc AUTHORS NEWS README.md
+ %license COPYING COPYING.LESSERv3 COPYING.unicode COPYINGv2
+-%{_bindir}/idn2
+ %{_libdir}/%{name}.so.*
+ %exclude %{_datadir}/info/dir
+ 
++%files -n idn2
++%{_bindir}/idn2
+ 
+ %files devel
+ %{_includedir}/*.h
+-- 
+2.30.0.windows.2
+

@@ -1,0 +1,63 @@
+From 0c36ed58b31d5b85f9ba1bfaed714a71ad90a972 Mon Sep 17 00:00:00 2001
+From: yyywwwlll <penzaiyao@126.com>
+Date: Mon, 29 Mar 2021 06:43:36 +0000
+Subject: [PATCH] spilt rpm package
+
+---
+ qrencode.spec | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/qrencode.spec b/qrencode.spec
+index a20be50..80fb78b 100644
+--- a/qrencode.spec
++++ b/qrencode.spec
+@@ -10,7 +10,6 @@ BuildRequires:	gcc chrpath libpng-devel SDL-devel autoconf >= 2.69
+ BuildRequires:  qrencode
+ 
+ Provides:       qrencode-libs
+-Obsoletes:      qrencode-libs
+ 
+ %description
+ Libqrencode is a fast and compact library for encoding data in a QR 
+@@ -32,6 +31,12 @@ Requires:       %{name} = %{version}-%{release}
+ %description    devel
+ Header files for qrencode
+ 
++%package        libs
++Summary:        bin files for qrencode
++
++%description    libs
++bin files for qrencode
++
+ %package_help
+ 
+ %prep
+@@ -49,7 +54,6 @@ autoconf
+ chrpath --delete %{buildroot}%{_bindir}/qrencode
+ 
+ #Include previous ABI version for temporary binary compatibility
+-cp -a %{_libdir}/libqrencode.so.3* %{buildroot}%{_libdir}
+ 
+ %check
+ pushd ./tests
+@@ -60,7 +64,6 @@ popd
+ %defattr(-,root,root)
+ %license COPYING
+ %doc ChangeLog README
+-%{_bindir}/qrencode
+ %{_libdir}/libqrencode.so.*
+ 
+ %files          devel
+@@ -69,6 +72,9 @@ popd
+ %{_libdir}/*.so
+ %{_libdir}/pkgconfig/*.pc
+ 
++%files          libs
++%{_bindir}/qrencode
++
+ %files          help
+ %defattr(-,root,root)
+ %doc NEWS TODO
+-- 
+2.23.0
+

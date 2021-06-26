@@ -1,0 +1,43 @@
+From b5e7dbb7bc8ef60fe772bb74796879eaa96bf1db Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Mon, 15 Mar 2021 09:34:16 +0000
+Subject: [PATCH] fix: add subpackage lz4-utils
+
+---
+ lz4.spec | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/lz4.spec b/lz4.spec
+index 0252415..63d9e0d 100644
+--- a/lz4.spec
++++ b/lz4.spec
+@@ -20,6 +20,13 @@ core (>0.15 Bytes/cycle). It features an extremely fast decoder, with speed in
+ multiple GB/s per core (~1 Byte/cycle). A high compression derivative, called
+ LZ4_HC, is available, trading customizable CPU time for compression ratio.
+ 
++%package        utils
++Summary:        utils for lz4
++Requires:       %{name}%{?_isa} = %{version}-%{release}
++
++%description    utils
++utils for lz4
++
+ %package        devel
+ Summary:        Development files for lz4
+ Requires:       %{name}%{?_isa} = %{version}-%{release}
+@@ -52,9 +59,11 @@ export MOREFLAGS="-g"
+ %doc NEWS
+ %license LICENSE
+ %license LICENSE-lib
++%{_libdir}/liblz4.so.*
++
++%files utils
+ %{_bindir}/lz4*
+ %{_bindir}/unlz4
+-%{_libdir}/liblz4.so.*
+ 
+ %files devel
+ %license lib/LICENSE
+-- 
+2.23.0
+

@@ -1,0 +1,77 @@
+From 155816a91d3b73a2d13b98b39350e00b428ff6ed Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:35:21 +0800
+Subject: [PATCH] split rpm libverto-glib & libevent & libev
+
+---
+ libverto.spec | 33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
+
+diff --git a/libverto.spec b/libverto.spec
+index ce6c164..a34730a 100644
+--- a/libverto.spec
++++ b/libverto.spec
+@@ -15,14 +15,11 @@ Obsoletes:      libverto-tevent-devel < 0.3.0-2
+ 
+ 
+ Provides:  %{name}-glib
+-Obsoletes: %{name}-glib
+ 
+ Provides:  %{name}-module-base = %{version}-%{release}
+ Provides:  %{name}-libevent 
+-Obsoletes: %{name}-libevent
+ 
+ Provides:  %{name}-libev
+-Obsoletes: %{name}-libev
+ 
+ %description
+ libverto exists to solve an important problem: many applications and libraries
+@@ -33,6 +30,30 @@ use home-grown loops. libverto provides a loop-neutral async api which allows
+ the library to expose asynchronous interfaces and offload the choice of the
+ main loop to the application.
+ 
++%package   glib
++Summary:   glib module for libverto
++Requires:  %{name} = %{version}-%{release}
++
++%description    glib
++Module for libverto which provides integration with glib.
++This package does NOT yet provide libverto-module-base.
++
++%package   libevent
++Summary:   libevent module for libverto
++Requires:  %{name} = %{version}-%{release}
++
++%description    libevent
++Module for libverto which provides integration with libevent.
++
++%package   libev
++Summary:   libev module for libverto
++Requires:  %{name} = %{version}-%{release}
++
++%description    libev
++Module for libverto which provides integration with libev.
++This package provides libverto-module-base since it supports io, timeout
++and signal.
++
+ %package   devel
+ Summary:   Development files for %{name}
+ Requires:  %{name} = %{version}-%{release}
+@@ -70,8 +91,14 @@ find  %{buildroot} -name '*.la' -exec rm -f {} ';'
+ %license COPYING
+ %doc AUTHORS ChangeLog NEWS README
+ %{_libdir}/%{name}.so.*
++
++%files glib
+ %{_libdir}/%{name}-glib.so.*
++
++%files libevent
+ %{_libdir}/%{name}-libevent.so.*
++
++%files libev
+ %{_libdir}/%{name}-libev.so.*
+ 
+ %files devel
+-- 
+2.30.0.windows.2
+

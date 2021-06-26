@@ -1,0 +1,77 @@
+From a0922fb2213db34fcca56795ab429c35b6bdf0a6 Mon Sep 17 00:00:00 2001
+From: yyywwwlll <penzaiyao@126.com>
+Date: Mon, 29 Mar 2021 03:24:02 +0000
+Subject: [PATCH] split rpm package
+
+---
+ pcre.spec | 40 +++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 37 insertions(+), 3 deletions(-)
+
+diff --git a/pcre.spec b/pcre.spec
+index 6f72e0a..23f6a38 100644
+--- a/pcre.spec
++++ b/pcre.spec
+@@ -31,8 +31,6 @@ BuildRequires:	gcc git gcc-c++ glibc-common libtool make
+ BuildRequires:	bash diffutils grep
+ Provides:	%{name}-utf16 = %{version}-%{release} %{name}-utf32 = %{version}-%{release}
+ Provides:       %{name}-cpp = %{version}-%{release} %{name}-tools = %{version}-%{release}
+-Obsoletes:	%{name}-utf16 < %{version}-%{release} %{name}-utf32 < %{version}-%{release}
+-Obsoletes:      %{name}-cpp < %{version}-%{release} %{name}-tools < %{version}-%{release}
+ 
+ %description
+ The PCRE library is a set of functions that implement regular expression
+@@ -48,6 +46,30 @@ products, like Apple Safari. Some other interesting projects using PCRE
+ include Chicken, Ferite, Onyx, Hypermail, Leafnode, Askemos, Wenlin, and
+ 8th.
+ 
++%package utf16
++Summary: UTF-16 variant of PCRE
++
++%description utf16
++This is Perl-compatible regular expression library working on UTF-16 strings.
++
++%package utf32
++Summary: UTF-32 variant of PCRE
++
++%description utf32
++This is Perl-compatible regular expression library working on UTF-32 strings.
++
++%package cpp
++Summary: C++ bindings for PCRE
++
++%description cpp
++This is C++ bindings for the Perl-compatible regular expression library.
++
++%package tools
++Summary: Auxiliary utilities for %{name}
++
++%description tools
++Utilities demonstrating PCRE capabilities like pcregrep or pcretest.
++
+ %package        devel
+ Summary:        Development files for %{name}
+ Requires:       %{name} = %{version}-%{release}
+@@ -90,7 +112,19 @@ make check VERBOSE=yes
+ %files
+ %doc NEWS README
+ %license LICENCE AUTHORS
+-%{_libdir}/*.so.*
++%{_libdir}/libpcre.so.*
++%{_libdir}/libpcreposix.so.*
++
++%files utf16
++%{_libdir}/libpcre16.so.*
++
++%files utf32
++%{_libdir}/libpcre32.so.*
++
++%files cpp
++%{_libdir}/libpcrecpp.so.*
++
++%files tools
+ %{_bindir}/pcregrep
+ %{_bindir}/pcretest
+ 
+-- 
+2.23.0
+

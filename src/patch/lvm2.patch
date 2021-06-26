@@ -1,0 +1,53 @@
+From 7f30dfc6301a9eb07e21df347e8a642b183d1336 Mon Sep 17 00:00:00 2001
+From: yyywwwlll <penzaiyao@126.com>
+Date: Tue, 15 Jun 2021 02:55:46 +0000
+Subject: [PATCH] split rpm device-mapper-libs
+
+---
+ lvm2.spec | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/lvm2.spec b/lvm2.spec
+index db011df..36e4cc2 100644
+--- a/lvm2.spec
++++ b/lvm2.spec
+@@ -223,13 +223,18 @@ License:   LGPLv2
+ URL:       http://sources.redhat.com/dm
+ Requires:  util-linux >= %{util_linux_version}
+ Requires:  systemd >= %{systemd_version}
+-Provides:  device-mapper-libs = %{?epoch}:%{device_mapper_version}-%{release}
+-Obsoletes: device-mapper-libs
+ Conflicts: dracut < %{dracut_version}
+ 
+ %description -n device-mapper
+ Manages logical devices that use the device-mapper driver.
+ 
++%package -n device-mapper-libs
++Summary:   bin documents for device-mapper
++Provides:  device-mapper-libs = %{?epoch}:%{device_mapper_version}-%{release}
++
++%description -n device-mapper-libs
++bin documents for  device-mapper.
++
+ %package -n device-mapper-event
+ Summary:   Handle device-mapper events
+ Version:   %{device_mapper_version}
+@@ -408,11 +413,14 @@ fi
+ %license COPYING COPYING.LIB
+ %doc udev/12-dm-permissions.rules
+ %defattr(555,root,root,-)
++%{_libdir}/libdevmapper.so.*
++
++%files -n device-mapper-libs
++%defattr(555,root,root,-)
+ %{_sbindir}/dmsetup
+ %{_sbindir}/blkdeactivate
+ %{_sbindir}/dmstats
+ %{_sbindir}/dmfilemapd
+-%{_libdir}/libdevmapper.so.*
+ %defattr(444,root,root,-)
+ %{_prefix}/lib/udev/rules.d/10-dm.rules
+ %{_prefix}/lib/udev/rules.d/13-dm-disk.rules
+-- 
+2.23.0
+

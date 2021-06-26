@@ -1,0 +1,44 @@
+From a9474e35359f9b4474312df2dded5bbe52c1e013 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:16:50 +0800
+Subject: [PATCH] split rpm libgpg-error tools
+
+---
+ libgpg-error.spec | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/libgpg-error.spec b/libgpg-error.spec
+index a49e15c..3c1b29c 100644
+--- a/libgpg-error.spec
++++ b/libgpg-error.spec
+@@ -25,6 +25,13 @@ Requires:	%{name} = %{version}-%{release} pkgconfig
+ %description    devel
+ Contains header files and development libraries for libgpg-error.
+ 
++%package        tools
++Summary:        Tools for libgpg-error
++Requires:       %{name} = %{version}-%{release} pkgconfig
++
++%description    tools
++Gpg-error tools for libgpg-error.
++
+ %package_help
+ 
+ %prep
+@@ -65,10 +72,12 @@ exit 0
+ %defattr(-,root,root)
+ %license COPYING COPYING.LIB
+ %doc AUTHORS README NEWS ChangeLog
+-%{_bindir}/gpg-error
+ %{_libdir}/libgpg-error.so.0*
+ %{_datadir}/libgpg-error
+ 
++%files tools
++%{_bindir}/gpg-error
++
+ %files devel
+ %defattr(-,root,root)
+ %{_bindir}/*
+-- 
+2.30.0.windows.2
+

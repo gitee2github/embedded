@@ -1,0 +1,32 @@
+From 68271b419aa5c6c3ad801063f18152998d3ee3de Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:18:39 +0800
+Subject: [PATCH] delete low version so
+
+---
+ libmodulemd.spec | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/libmodulemd.spec b/libmodulemd.spec
+index 6c1d1a0..5569e54 100644
+--- a/libmodulemd.spec
++++ b/libmodulemd.spec
+@@ -54,7 +54,6 @@ export LC_CTYPE=C.utf8
+ 
+ %install
+ %meson_install
+-cp -a %{_libdir}/%{name}.so.* %{buildroot}%{_libdir}
+ 
+ %ldconfig_scriptlets
+ 
+@@ -63,7 +62,6 @@ cp -a %{_libdir}/%{name}.so.* %{buildroot}%{_libdir}
+ %license COPYING
+ %doc README.md
+ %{_bindir}/modulemd-validator
+-%{_libdir}/%{name}.so.1*
+ %{_libdir}/%{name}.so.2*
+ %dir %{_libdir}/girepository-1.0
+ %{_libdir}/girepository-1.0/Modulemd*
+-- 
+2.30.0.windows.2
+

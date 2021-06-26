@@ -1,0 +1,25 @@
+From 6b4e7e4a1a7c2626094af3ca17dc6aa7855b94b2 Mon Sep 17 00:00:00 2001
+From: yyywwwlll <yaoweili@huawei.com>
+Date: Mon, 22 Mar 2021 01:52:06 +0000
+Subject: [PATCH] delete low-funetional version so
+
+---
+ mpfr.spec | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/mpfr.spec b/mpfr.spec
+index febde38..e04563d 100644
+--- a/mpfr.spec
++++ b/mpfr.spec
+@@ -45,8 +45,6 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libmpfr.la
+ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
+ 
+ rm -f $RPM_BUILD_ROOT%{_pkgdocdir}/COPYING  $RPM_BUILD_ROOT%{_pkgdocdir}/COPYING.LESSER
+-cp -a %{_libdir}/libmpfr.so.4 $RPM_BUILD_ROOT%{_libdir}
+-cp -a %{_libdir}/libmpfr.so.4.1.6 $RPM_BUILD_ROOT%{_libdir}
+ 
+ %check
+ make %{?_smp_mflags} check
+-- 
+2.23.0
+

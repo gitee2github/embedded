@@ -1,0 +1,49 @@
+From 47546d892f9b3743cf77e48a1f9b766d4649c3d0 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Tue, 23 Mar 2021 11:35:20 +0800
+Subject: [PATCH] split rpm libcap tools
+
+---
+ libcap.spec | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/libcap.spec b/libcap.spec
+index 3f967c3..9354bfa 100644
+--- a/libcap.spec
++++ b/libcap.spec
+@@ -21,6 +21,14 @@ Requires:%{name} = %{version}-%{release}
+ %description devel
+ Development headers and libraries for %{name}
+ 
++%package tools
++Summary: Tools for getting and setting POSIX.1e draft 15 capabilities
++Requires: %{name} = %{version}-%{release}
++
++%description tools
++The libcap-tools package contains applications to getting and setting
++POSIX.1e draft 15 capabilities.
++
+ %package_help
+ 
+ %prep
+@@ -50,7 +58,6 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
+ %license License
+ %doc doc/capability.notes
+ %{_libdir}/*.so.*
+-%{_sbindir}/*
+ %{_libdir}/security/pam_cap.so
+ 
+ %files devel
+@@ -60,6 +67,9 @@ chmod +x %{buildroot}/%{_libdir}/*.so.*
+ %{_libdir}/pkgconfig/*.pc
+ %{_libdir}/*.a
+ 
++%files tools
++%{_sbindir}/*
++
+ %files help
+ %defattr(-,root,root)
+ %{_mandir}/man3/*.gz
+-- 
+2.30.0.windows.2
+

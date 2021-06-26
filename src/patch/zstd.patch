@@ -1,0 +1,47 @@
+From 736b37a836d131473f8dbe45136fd1d1cf07cbb5 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 17:31:53 +0800
+Subject: [PATCH] split rpm zstd-tools
+
+---
+ zstd.spec | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/zstd.spec b/zstd.spec
+index 4cf02bb..1d57f32 100644
+--- a/zstd.spec
++++ b/zstd.spec
+@@ -20,6 +20,12 @@ Zstd is a fast lossless compression algorithm. It's backed by a very fast entrop
+ provided by Huff0 and FSE library. It's a real-time compression scenario for zlib levels
+ and has a better compression ratio.
+ 
++%package         tools
++Summary:         Tools for zstd library.
++
++%description     tools
++Tools for zstd library.
++
+ %package         devel
+ Summary:         Header files for zstd library
+ Requires:        %{name} = %{version}-%{release}
+@@ -71,14 +77,15 @@ install -D -m644 programs/zstd.1 %{buildroot}%{_mandir}/man1/pzstd.1
+ %files
+ %doc CHANGELOG README.md
+ %license LICENSE COPYING
+-%{_bindir}/*
+-
+ %{_libdir}/libzstd.so.*
+ 
+ %exclude %{_bindir}/%{name}less
+ %exclude %{_bindir}/%{name}grep
+ %exclude %{_libdir}/libzstd.a
+ 
++%files tools
++%{_bindir}/*
++
+ %files devel
+ %{_includedir}/*.h
+ 
+-- 
+2.30.0.windows.2
+

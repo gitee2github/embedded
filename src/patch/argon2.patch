@@ -1,0 +1,25 @@
+From 438603a7f40a5819fdba5bdab14e16d8579cee5d Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Wed, 17 Mar 2021 08:39:34 +0000
+Subject: [PATCH] fix: remove compatible library
+
+---
+ argon2.spec | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/argon2.spec b/argon2.spec
+index e56effe..5436770 100644
+--- a/argon2.spec
++++ b/argon2.spec
+@@ -82,8 +82,6 @@ install -Dpm 755 libargon2.so.* %{buildroot}%{_libdir}/
+ install -Dpm 644 libargon2.pc %{buildroot}%{_libdir}/pkgconfig/libargon2.pc
+ install -Dpm 644 man/argon2.1 %{buildroot}%{_mandir}/man1/argon2.1
+ 
+-cp -p %{_libdir}/libargon2.so.0  %{buildroot}%{_libdir}
+-
+ %check
+ make test
+ 
+-- 
+2.23.0
+

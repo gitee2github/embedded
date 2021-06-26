@@ -1,0 +1,125 @@
+From 5cf18f23a3046c0f6d8d253d1180a16fceb0b804 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 15:50:50 +0800
+Subject: [PATCH] split rpm dnf automatic
+
+---
+ dnf.spec | 43 +++++++++++++++++++++++++++++--------------
+ 1 file changed, 29 insertions(+), 14 deletions(-)
+
+diff --git a/dnf.spec b/dnf.spec
+index 3739be8..db13a1a 100644
+--- a/dnf.spec
++++ b/dnf.spec
+@@ -10,7 +10,7 @@ Source0:              https://github.com/rpm-software-management/dnf/archive/%{v
+ 
+ BuildArch:            noarch
+ BuildRequires:        cmake gettext systemd bash-completion python3-sphinx
+-Requires:             python3-%{name} = %{version}-%{release} libreport-filesystem 
++Requires:             python3-%{name} = %{version}-%{release}
+ Recommends:           (%{_bindir}/sqlite3 if bash-completion) (python3-dbus if NetworkManager)
+ Provides:             dnf-command(alias) dnf-command(autoremove) dnf-command(check-update) dnf-command(clean)
+ Provides:             dnf-command(distro-sync) dnf-command(downgrade) dnf-command(group)  dnf-command(history)
+@@ -43,7 +43,7 @@ Summary:              Python 3 interface to DNF
+ BuildRequires:        python3-devel python3-hawkey >= 0.48.0 python3-libdnf >= 0.48.0
+ BuildRequires:        python3-libcomps >= 0.1.8 python3-libdnf libmodulemd >= 1.4.0
+ BuildRequires:        python3-nose python3-gpg python3-rpm >= 4.14.0
+-Requires:             python3-gpg %{name}-data = %{version}-%{release} libmodulemd >= 1.4.0
++Requires:             python3-gpg libmodulemd >= 1.4.0
+ Requires:             python3-hawkey >= 0.48.0 python3-libdnf >= 0.48.0
+ Requires:             python3-libcomps >= 0.1.8 python3-libdnf  python3-rpm >= 4.14.0
+ Recommends:           python3-unbound rpm-plugin-systemd-inhibit
+@@ -62,6 +62,13 @@ Obsoletes:	      yum-help < %{version}-%{release}
+ %description help
+ Man pages and other related documents for dnf and yum
+ 
++%package              automatic
++Requires:             %{name} = %{version}-%{release}
++Summary:              DNF automatic
++
++%description          automatic
++This package provides dnf-automatic.
++
+ %prep
+ %autosetup -p1
+ mkdir build-py3
+@@ -106,20 +113,26 @@ popd
+ 
+ %post
+ %systemd_post dnf-makecache.timer
++
++%post automatic
+ %systemd_post dnf-automatic.timer
+ %systemd_post dnf-automatic-notifyonly.timer
+ %systemd_post dnf-automatic-download.timer
+ %systemd_post dnf-automatic-install.timer
+ 
+ %preun
+-%systemd_preun dnf-automatic.timer
+ %systemd_preun dnf-makecache.timer
++
++%preun automatic
++%systemd_preun dnf-automatic.timer
+ %systemd_preun dnf-automatic-notifyonly.timer
+ %systemd_preun dnf-automatic-download.timer
+ %systemd_preun dnf-automatic-install.timer
+ 
+ %postun
+ %systemd_postun_with_restart dnf-makecache.timer
++
++%postun automatic
+ %systemd_postun_with_restart dnf-automatic.timer
+ %systemd_postun_with_restart dnf-automatic-notifyonly.timer
+ %systemd_postun_with_restart dnf-automatic-download.timer
+@@ -129,20 +142,10 @@ popd
+ %license COPYING PACKAGE-LICENSING
+ %doc AUTHORS README.rst
+ %{_bindir}/%{name}
+-%{_bindir}/%{name}-automatic
+ %{_sysconfdir}/bash_completion.d/%{name}
+-%{_unitdir}/%{name}-automatic.timer
+ %{_unitdir}/%{name}-makecache.timer
+-%{_unitdir}/%{name}-automatic.service
+ %{_unitdir}/%{name}-makecache.service
+-%{_unitdir}/%{name}-automatic-notifyonly.service
+-%{_unitdir}/%{name}-automatic-notifyonly.timer
+-%{_unitdir}/%{name}-automatic-download.service
+-%{_unitdir}/%{name}-automatic-download.timer
+-%{_unitdir}/%{name}-automatic-install.service
+-%{_unitdir}/%{name}-automatic-install.timer
+ %{_var}/cache/%{name}/
+-%{python3_sitelib}/%{name}/automatic/
+ %dir %{_sysconfdir}/%{name} 
+ %dir %{_sysconfdir}/%{name}/modules.d
+ %dir %{_sysconfdir}/%{name}/modules.defaults.d
+@@ -151,7 +154,6 @@ popd
+ %dir %{_sysconfdir}/%{name}/vars
+ %dir %{_sysconfdir}/%{name}/aliases.d
+ %exclude %{_sysconfdir}/%{name}/aliases.d/zypper.conf
+-%config(noreplace) %{_sysconfdir}/%{name}/automatic.conf
+ %config(noreplace) %{_sysconfdir}/%{name}/%{name}.conf
+ %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+ %config(noreplace) %{_sysconfdir}/%{name}/protected.d/%{name}.conf
+@@ -167,6 +169,19 @@ popd
+ %{_tmpfilesdir}/%{name}.conf
+ %{_sysconfdir}/libreport/events.d/collect_dnf.conf
+ 
++%files automatic
++%{_bindir}/%{name}-automatic
++%{_unitdir}/%{name}-automatic.timer
++%{_unitdir}/%{name}-automatic.service
++%{_unitdir}/%{name}-automatic-notifyonly.service
++%{_unitdir}/%{name}-automatic-notifyonly.timer
++%{_unitdir}/%{name}-automatic-download.service
++%{_unitdir}/%{name}-automatic-download.timer
++%{_unitdir}/%{name}-automatic-install.service
++%{_unitdir}/%{name}-automatic-install.timer
++%{python3_sitelib}/%{name}/automatic/
++%config(noreplace) %{_sysconfdir}/%{name}/automatic.conf
++
+ %files -n yum 
+ %{_bindir}/yum
+ %{_sysconfdir}/yum/vars
+-- 
+2.30.0.windows.2
+

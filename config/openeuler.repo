@@ -1,0 +1,6 @@
+[openeuler-standard]
+name=openeuler-standard
+baseurl=http://119.3.219.20:82/openEuler:/20.03:/LTS/standard_$basearch/
+enabled=1
+priority=100
+gpgcheck=0

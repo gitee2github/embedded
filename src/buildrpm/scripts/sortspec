@@ -1,0 +1,175 @@
+#!/bin/bash
+set -e
+
+SCRIPT_DIR=$(realpath $(dirname "$0"))
+CURRENT_DIR=$(realpath $(pwd))
+
+WORKDIR=""
+DESTFILE=$CURRENT_DIR/a.list
+REPO_FILE=""
+ALLSPEC=""
+
+source $SCRIPT_DIR/common.sh
+
+function usage()
+{
+    log_info "Usage: ./$(basename $0) -r [repo] -f [result list file] specs"
+}
+
+function extend_builddeps()
+{
+    local alls=$ALLSPEC
+    local repof=$REPO_FILE
+    local tmpdir=$WORKDIR
+
+    local srcdir=$tmpdir/SOURCES
+    local setrepo="-c $repof $(sed -n 's/name=/--repo /p' $repof)"
+    local allcnt=$(echo $alls | wc -w)
+    for cnt in $(seq 1 $allcnt)
+    do
+        local pack=$(realpath $(echo $alls | cut -d ' ' -f $cnt))
+        local packdir=$(dirname $pack)
+        [[ -h $srcdir ]] && unlink $srcdir
+        ln -s $packdir $srcdir
+
+        local depsname=$(rpmspec --define "_topdir $tmpdir" -q --buildrequires $pack 2>/dev/null)
+        [[ ! -n $depsname ]] && log_error "$pack buildrequires not found" && continue
+
+        local deps=$(repoquery $setrepo $depsname 2>/dev/null | grep -v \.src$)
+        #local edeps=$(echo "$deps" | rev | cut -d \- -f 3- | rev)
+        local edeps=$(repoquery $setrepo --recursive --resolve --requires $deps 2>/dev/null | rev | cut -d \- -f 3- | rev)
+        echo $edeps > $tmpdir/$(basename $pack .spec).dep
+        log_info "[$pack] get depends done "
+    done
+    unset cnt
+
+    [[ -h $srcdir ]] && unlink $srcdir
+}
+
+function trans_pack2src()
+{
+    local alls=$ALLSPEC
+    local tmpdir=$WORKDIR
+
+    local srcdir=$tmpdir/SOURCES
+    local allcnt=$(echo $alls | wc -w)
+    for cnt in $(seq 1 $allcnt)
+    do
+        local spec=$(realpath $(echo $alls | cut -d ' ' -f $cnt))
+        local specname=$(basename $spec .spec)
+        local packdir=$(dirname $spec)
+        [[ -h $srcdir ]] && unlink $srcdir
+        ln -s $packdir $srcdir
+
+        local provides=$(rpmspec --define "_topdir $tmpdir" -q --provides $spec 2>/dev/null | cut -d ' ' -f 1 | cut -d \( -f 1 | sort -n | uniq)
+        [[ ! -n $provides ]] && log_error "$spec providess not found" && continue
+    
+        log_info "handle $specname"
+        for rpmpack in $provides
+        do
+            sed -i "s@\b$rpmpack\b@$specname@g" $tmpdir/*.dep
+        done
+
+        for depfile in $(ls $tmpdir/*.dep)
+        do
+            cat $depfile | xargs -d ' ' -n 1 | egrep -v ^$ | sort -n | uniq > $depfile.new
+            rm -f $depfile
+            mv $depfile.new $depfile
+        done
+    done
+
+    [[ -h $srcdir ]] && unlink $srcdir
+}
+
+function remove_extradep()
+{
+    local tmpdir=$WORKDIR
+    local alls=$ALLSPEC
+
+    local pattele=$(basename -s .spec -a $alls | xargs | sed -n 's@ @|@pg')
+    local patt="^($pattele)$"
+
+    log_info "[pattern] $patt"
+    for depfile in $(ls $tmpdir/*.dep)
+    do
+        cat $depfile | egrep $patt | xargs > $depfile.new
+        rm -f $depfile
+        mv $depfile.new $depfile
+    done
+
+    for depfile in $(ls $tmpdir/*.dep)
+    do
+        log_info "[$depfile] result:"
+        cat $depfile
+    done
+}
+
+function trandep2list()
+{
+    local workdir=$(realpath $WORKDIR)
+    local edgefile=$(realpath $DESTFILE)
+
+    [[ -f $edgefile ]] && rm -f $edgefile
+    touch $edgefile
+
+    for depf in $(ls $workdir/*.dep)
+    do
+        local depf=$(realpath $depf)
+        
+        cat $depf | xargs -d ' ' -n 1 | grep -v ^$ | xargs -n 1 -I packname echo packname $(basename $depf .dep) >> $edgefile
+    done
+    unset depf
+}
+
+function param_parse()
+{
+    local optcnt=0
+    while getopts "r:f:" opt
+    do
+        case "$opt" in
+            r)
+            REPO_FILE="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            f)
+            DESTFILE="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            ?)
+            log_error "unknown parameters" && usage && return 1;;
+        esac
+    done
+    shift $(($optcnt * 2))
+
+    ALLSPEC=$@
+    # param check
+    [[ ! -n $DESTFILE ]] && log_error "empty parameter, -d" && usage && return 1
+    [[ ! -n $ALLSPEC ]] && log_error "empty parameter, no target" && usage && return 1
+
+    if [[ x$REPO_FILE != x ]]; then
+        REPO_FILE=$(realpath $REPO_FILE)
+        [[ ! -f $REPO_FILE ]] && log_error "repo file not exit" && usage && return 1
+    fi
+
+    WORKDIR=$(dirname $DESTFILE)
+    [[ ! -d $WORKDIR ]] && log_error "dest dir not exist" && usage && return 1
+    WORKDIR=$(realpath $WORKDIR)
+    DESTFILE=$(realpath $DESTFILE)
+
+    return 0
+}
+
+function main()
+{
+    param_parse $@
+    touch $DESTFILE
+
+    extend_builddeps
+    trans_pack2src
+    remove_extradep
+    trandep2list
+    rm -f $WORKDIR/*.dep
+}
+
+main $@
+

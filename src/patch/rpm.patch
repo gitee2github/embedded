@@ -1,0 +1,157 @@
+From 29886d65a05321719dbc08664f661114eb8aba41 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Tue, 23 Mar 2021 11:42:25 +0800
+Subject: [PATCH] split rpm rpm-sign & rpm-sign-libs & rpm-build-libs &
+ rpm-cron & rpm-plugin
+
+---
+ rpm.spec | 66 +++++++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 58 insertions(+), 8 deletions(-)
+
+diff --git a/rpm.spec b/rpm.spec
+index 43a1413..bb2ecb1 100644
+--- a/rpm.spec
++++ b/rpm.spec
+@@ -49,8 +49,7 @@ BuildRequires: zlib-devel libzstd-devel xz-devel bzip2-devel libarchive-devel im
+ BuildRequires: dbus-devel fakechroot elfutils-devel elfutils-libelf-devel ima-evm-utils
+ BuildRequires: lua-devel libcap-devel libacl-devel libselinux-devel file-devel gettext-devel ncurses-devel
+ BuildRequires: system-rpm-config gdb dwz
+-Requires:      coreutils popt curl zstd libcap gnupg2 crontabs logrotate libdb-utils %{name}-libs
+-Obsoletes:     %{name}-build-libs %{name}-sign-libs %{name}-sign %{name}-cron
++Requires:      popt zstd libcap %{name}-libs
+ Provides:      %{name}-build-libs %{name}-sign-libs %{name}-sign %{name}-cron
+ Obsoletes:     %{name}-plugin-selinux %{name}-plugin-syslog %{name}-plugin-systemd-inhibit %{name}-plugin-ima %{name}-plugin-prioreset
+ Provides:      %{name}-plugin-selinux %{name}-plugin-syslog %{name}-plugin-systemd-inhibit %{name}-plugin-ima %{name}-plugin-prioreset
+@@ -69,9 +68,24 @@ Summary:     Shared library of rpm 4.15
+ %description libs
+ Shared library of rpm 4.15.
+ 
++%package     sign-libs
++Summary:     Libraries for signing RPM packages
++Requires:    %{name}-libs = %{version}-%{release}
++Requires:    gnupg2
++
++%description sign-libs
++This package contains the RPM shared libraries for signing packages.
++
++%package     sign
++Summary:     Package signing support
++Requires:    %{name}-sign-libs = %{version}-%{release}
++
++%description sign
++This package contains support for digitally signing RPM packages.
++
+ %package build
+ Summary:     Scripts and executable programs used to build packages
+-Requires:    %{name} = %{version}-%{release}
++Requires:    %{name}-build-libs = %{version}-%{release}
+ Requires:    elfutils binutils findutils sed grep gawk diffutils file patch
+ Requires:    tar unzip gzip bzip2 cpio xz zstd pkgconfig system-rpm-config
+ Requires:    gcc-c++ autoconf automake binutils gcc gdbm gettext glibc
+@@ -81,6 +95,13 @@ Requires:    gdb-headless ncurses perl make git chrpath
+ This package provides scripts and executable programs that used to
+ build rpm packages.
+ 
++%package     build-libs
++Summary:     Libraries for building RPM packages
++Requires:     %{name}-libs = %{version}-%{release}
++
++%description build-libs
++This package contains the RPM shared libraries for building packages.
++
+ %package -n python2-%{name}
+ Summary: Python2 bindings for RPM user
+ BuildRequires: python2-devel
+@@ -115,6 +136,22 @@ Requires: popt-devel
+ %description devel
+ %{summary}.
+ 
++%package     cron
++Summary:     Create daily logs of installed packages.
++BuildArch:   noarch
++Requires:    crontabs logrotate rpm = %{version}-%{release}
++
++%description cron
++This package contains a cron job which creates daily logs of installed
++packages on a system.
++
++%package     plugin
++Summary:     Rpm plugin
++Requires:    %{name}-libs = %{version}-%{release}
++
++%description plugin
++%{summary}.
++
+ %package help
+ Summary: Man page for %{name}
+ BuildArch: noarch
+@@ -227,8 +264,6 @@ make check || (cat tests/rpmtests.log; exit 0)
+ %license COPYING
+ %doc CREDITS
+ /usr/lib/tmpfiles.d/rpm.conf
+-%{_sysconfdir}/cron.daily/rpm
+-%config(noreplace) %{_sysconfdir}/logrotate.d/rpm
+ %dir %{_sysconfdir}/rpm
+ %dir /var/lib/rpm
+ %attr(0644, root, root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/lib/rpm/*
+@@ -251,25 +286,33 @@ make check || (cat tests/rpmtests.log; exit 0)
+ %{_rpmconfigdir}/rpm2cpio.sh
+ %{_rpmconfigdir}/tgpg
+ %{_rpmconfigdir}/platform
+-%{_libdir}/rpm-plugins/
+ %dir %{_rpmconfigdir}/fileattrs
+ %{_bindir}/rpm
+-%{_bindir}/rpm2archive
+ %{_bindir}/rpm2cpio
+ %{_bindir}/rpmdb
+ %{_bindir}/rpmkeys
+ %{_bindir}/rpmquery
+ %{_bindir}/rpmverify
++
++%files sign
+ %{_bindir}/rpmsign
+ 
+ %files libs
+-%{_libdir}/librpm*.so.9*
++%{_libdir}/librpm.so.9*
++%{_libdir}/librpmio.so.9*
++
++%files build-libs
++%{_libdir}/librpmbuild.so.9*
++
++%files sign-libs
++%{_libdir}/librpmsign.so.9*
+ 
+ %files build
+ %defattr(-,root,root)
+ %{_bindir}/rpmbuild
+ %{_bindir}/gendiff
+ %{_bindir}/rpmspec
++%{_bindir}/rpm2archive
+ 
+ %{_rpmconfigdir}/brp-*
+ %{_rpmconfigdir}/check-*
+@@ -286,6 +329,9 @@ make check || (cat tests/rpmtests.log; exit 0)
+ %{_rpmconfigdir}/mkinstalldirs
+ %{_rpmconfigdir}/fileattrs/*
+ 
++%files plugin
++%{_libdir}/rpm-plugins/
++
+ %files -n python2-%{name}
+ %defattr(-,root,root)
+ %{python2_sitearch}/%{name}/
+@@ -296,6 +342,10 @@ make check || (cat tests/rpmtests.log; exit 0)
+ %{python3_sitearch}/%{name}/
+ %{python3_sitearch}/%{name}-%{version}*.egg-info
+ 
++%files cron
++%{_sysconfdir}/cron.daily/rpm
++%config(noreplace) %{_sysconfdir}/logrotate.d/rpm
++
+ %files devel
+ %defattr(-,root,root)
+ %{_bindir}/rpmgraph
+-- 
+2.30.0.windows.2
+

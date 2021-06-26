@@ -1,0 +1,48 @@
+From c4e291e64a0e9e785912413443ad0224825c5888 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 16 Mar 2021 13:31:32 +0000
+Subject: [PATCH] fix: add new sub-package utils
+
+---
+ libpwquality.spec | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/libpwquality.spec b/libpwquality.spec
+index 35572d3..1cbfc17 100644
+--- a/libpwquality.spec
++++ b/libpwquality.spec
+@@ -32,6 +32,13 @@ Requires: pkgconfig
+ Files needed for development of applications using the libpwquality library.
+ See the pwquality.h header file for the API.
+ 
++%package utils
++Summary: tools for libpwquality
++Requires: libpwquality = %{version}-%{release}
++
++%description utils
++tools for libpwquality
++
+ %package -n python2-pwquality
+ Summary: Python2 bindings for the libpwquality library
+ Requires: libpwquality = %{version}-%{release}
+@@ -96,13 +103,15 @@ mkdir %{buildroot}%{_secconfdir}/pwquality.conf.d
+ %files -f libpwquality.lang
+ %license COPYING
+ %doc README NEWS AUTHORS
+-%{_bindir}/pwmake
+-%{_bindir}/pwscore
+ %{_moduledir}/pam_pwquality.so
+ %{_libdir}/libpwquality.so.*
+ %config(noreplace) %{_secconfdir}/pwquality.conf
+ %{_secconfdir}/pwquality.conf.d
+ 
++%files utils
++%{_bindir}/pwmake
++%{_bindir}/pwscore
++
+ %files devel
+ %{_includedir}/pwquality.h
+ %{_libdir}/libpwquality.so
+-- 
+2.23.0
+

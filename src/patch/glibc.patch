@@ -1,0 +1,134 @@
+From e2263ab052f0e12d417aedb49c901a6195706bbe Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 03:15:15 +0000
+Subject: [PATCH] fix: extract some files to new sub-package
+ langpack-en/langpack-zh/glibc-iconv, and mv nss releated files to nss_modules
+ sub-package
+
+---
+ glibc.spec | 68 ++++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 59 insertions(+), 9 deletions(-)
+
+diff --git a/glibc.spec b/glibc.spec
+index fab68f1..0cf6031 100644
+--- a/glibc.spec
++++ b/glibc.spec
+@@ -155,8 +155,6 @@ Summary: Common binaries and locale data for glibc
+ Provides: glibc-langpack = %{version}-%{release}
+ 
+ Provides: glibc-langpack-en = %{version}-%{release}
+-Provides: glibc-langpack-en%{?_isa} = %{version}-%{release}
+-Provides: glibc-langpack-zh = %{version}-%{release}
+ Provides: glibc-langpack-zh%{?_isa} = %{version}-%{release}
+ 
+ Requires: %{name} = %{version}-%{release}
+@@ -177,6 +175,46 @@ en_US are included.
+ 
+ %undefine __brp_ldconfig
+ 
++##############################################################################
++# glibc "langpack-en" sub-package
++##############################################################################
++%package langpack-en
++Summary: Locale data for English
++Provides: glibc-langpack-en = %{version}-%{release}
++
++Requires: %{name} = %{version}-%{release}
++Requires: tzdata >= 2003a
++
++%description langpack-en
++The %{name}-langpack-en package includes the basic infomation required
++to support the English language in your applications.
++
++##############################################################################
++# glibc "langpack-zh" sub-package
++##############################################################################
++%package langpack-zh
++Summary: Locale data for Mandarin Chinese
++Provides: glibc-langpack-zh = %{version}-%{release}
++
++Requires: %{name} = %{version}-%{release}
++Requires: tzdata >= 2003a
++
++%description langpack-zh
++The %{name}-langpack-en package includes the basic infomation required
++to support the Mandarin Chinese language in your applications.
++
++##############################################################################
++# glibc "iconv" sub-package
++##############################################################################
++%package iconv
++Summary: GNU iconv is a utils for conversions between different text encodings.
++Provides: libiconv = %{version}-%{release}
++
++Requires: %{name} = %{version}-%{release}
++
++%description iconv
++The %{name}-iconv package includes library and tools for conversions between different text encodings.
++
+ ##############################################################################
+ # glibc "all-langpacks" sub-package
+ ##############################################################################
+@@ -1008,13 +1046,13 @@ fi
+ %verify(not md5 size mtime) %config(noreplace) /etc/rpc
+ %dir /etc/ld.so.conf.d
+ %dir %{_prefix}/libexec/getconf
+-%dir %{_libdir}/gconv
+ %dir %attr(0700,root,root) /var/cache/ldconfig
+ %attr(0600,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /var/cache/ldconfig/aux-cache
+ %attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /etc/ld.so.cache
+ %attr(0644,root,root) %verify(not md5 size mtime) %ghost %config(missingok,noreplace) /etc/gai.conf
+ %{!?_licensedir:%global license %%doc}
+ %license COPYING COPYING.LIB LICENSES
++%exclude %{_prefix}/sbin/iconvconfig
+ 
+ %files -f common.filelist common
+ %attr(0644,root,root) %verify(not md5 size mtime) %{_prefix}/lib/locale/locale-archive.tmpl
+@@ -1022,12 +1060,13 @@ fi
+ %dir %{_prefix}/lib/locale
+ %dir %{_prefix}/lib/locale/C.utf8
+ %{_prefix}/lib/locale/C.utf8/*
+-%{_prefix}/lib/locale/zh_CN.utf8
+-%{_prefix}/lib/locale/en_US.utf8
+-%{_prefix}/share/locale/zh_CN
+-%{_prefix}/share/locale/en_GB
+-%dir %attr(755,root,root) /etc/default
+-%verify(not md5 size mtime) %config(noreplace) /etc/default/nss
++%exclude %{_prefix}/bin/makedb
++%exclude %{_prefix}/bin/iconv
++
++%files iconv
++%dir %{_libdir}/gconv
++%{_prefix}/bin/iconv
++%{_prefix}/sbin/iconvconfig
+ 
+ %files -f libc.lang all-langpacks
+ %{_prefix}/lib/locale
+@@ -1039,6 +1078,14 @@ fi
+ %exclude %{_prefix}/share/locale/zh_CN
+ %exclude %{_prefix}/share/locale/en_GB
+ 
++%files langpack-en
++%{_prefix}/lib/locale/en_US.utf8
++%{_prefix}/share/locale/en_GB
++
++%files langpack-zh
++%{_prefix}/lib/locale/zh_CN.utf8
++%{_prefix}/share/locale/zh_CN
++
+ %files locale-source
+ %dir %{_prefix}/share/i18n/locales
+ %{_prefix}/share/i18n/locales/*
+@@ -1067,6 +1114,9 @@ fi
+ %ghost %config(missingok,noreplace) /etc/sysconfig/nscd
+ 
+ %files -f nss_modules.filelist -n nss_modules
++%dir %attr(755,root,root) /etc/default
++%verify(not md5 size mtime) %config(noreplace) /etc/default/nss
++%{_prefix}/bin/makedb
+ /var/db/Makefile
+ 
+ %files -f nss-devel.filelist nss-devel
+-- 
+2.23.0
+

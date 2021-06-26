@@ -1,0 +1,108 @@
+#!/bin/bash
+set -e
+
+SCRIPT_DIR=$(realpath $(dirname "$0"))
+CURRENT_DIR=$(realpath $(pwd))
+
+OPER="download"
+DESTDIR=$CURRENT_DIR/
+ARCH=$(uname -m)
+REPO_FILE=""
+ALLPACK=""
+
+source $SCRIPT_DIR/common.sh
+
+function usage()
+{
+    log_info "Usage: ./$(basename $0) download|install -a [aarch64|x86_64] -r [repo] -d [work dir] spec|target ..."
+}
+
+function depends_oper()
+{
+    local repofile=$REPO_FILE
+    local destdir=$DESTDIR
+    local oper=$OPER
+    local packs=$ALLPACK
+
+    # params check, allow use system repo
+    local spcrepo=""
+    if [[ x$repofile != x ]]; then
+        local reponame=$(sed -n 's/name=/--repo /p' $repofile)
+        [[ x$reponame != x ]] && local spcrepo="-c $repofile $reponame"
+    fi
+    [[ ! -d $destdir ]] && log_error "dest directory[$destdir] not exist" && return 1
+    ( [[ $oper != 'download' ]] && [[ $oper != 'install' ]] ) && log_error "not supported operation!" && return 1
+    # set dnf opts
+    local common_param="$spcrepo --nogpgcheck --skip-broken -y --installroot=$destdir --setopt=install_weak_deps=False --forcearch $ARCH"
+    [[ $oper == 'download' ]] && local opt_param="--destdir=$destdir --downloadonly"
+    [[ $oper == 'install' ]] && local opt_param=""
+    # oper
+    local retcode=0
+    local allcnt=$(echo $packs | wc -w)
+    for cnt in $(seq 1 $allcnt)
+    do
+        local pack=$(echo $packs | cut -d ' ' -f $cnt)
+        local tmpoper=$oper
+        local targdowndep=""
+        local ret=0
+
+        log_info "[$cnt/$allcnt][$pack] $oper with depends"
+        [[ ${pack##*.} == "spec" ]] && [[ -f $pack ]] && local pack=$(realpath $pack) && local tmpoper="build-dep"
+        [[ $tmpoper == "download" ]] && local targdowndep="--alldeps --resolve"
+        dnf $tmpoper $common_param $opt_param $targdowndep $pack || ( local ret=$? && local retcode=1 )
+        log_info "[$cnt/$allcnt][$pack] $oper \$?=$ret"
+    done
+
+    return $retcode
+}
+
+function param_parse()
+{
+    OPER=$1
+    ( [[ x$OPER != x"download" ]] && [[ x$OPER != x"install" ]] ) && log_error "empty parameter, operation!" && usage && return 1
+    shift
+    local optcnt=0
+    while getopts "a:r:d:" opt
+    do
+        case "$opt" in
+            a)
+            ARCH="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            r)
+            REPO_FILE="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            d)
+            DESTDIR="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            ?)
+            log_error "unknown parameters" && usage && return 1;;
+        esac
+    done
+    shift $(($optcnt * 2))
+    ALLPACK=$@
+    # param check
+    [[ ! -n $DESTDIR ]] && log_error "empty parameter, -d" && usage && return 1
+    [[ ! -n $ALLPACK ]] && log_error "empty parameter, no target" && usage && return 1
+
+    ( [[ $ARCH != "aarch64" ]] && [[ $ARCH != "x86_64" ]] ) && usage && return 1
+    if [[ x$REPO_FILE != x ]]; then
+        REPO_FILE=$(realpath $REPO_FILE)
+        [[ ! -f $REPO_FILE ]] && log_error "repo file not exit" && usage && return 1
+    fi
+    DESTDIR=$(realpath $DESTDIR)
+    [[ ! -d $DESTDIR ]] && log_error "dest dir not exist" && usage && return 1
+
+    return 0
+}
+
+function main()
+{
+    param_parse $@
+    depends_oper
+}
+
+main $@
+

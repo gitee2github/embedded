@@ -1,0 +1,63 @@
+From 012aaf11951fcddad2c918ae1ae25be7762bcb41 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 09:22:08 +0000
+Subject: [PATCH] fix: extract some files to new added sub-package, and move
+ some scripts to sub-package scripts.
+
+---
+ crypto-policies.spec | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/crypto-policies.spec b/crypto-policies.spec
+index deb5a33..dd137c5 100644
+--- a/crypto-policies.spec
++++ b/crypto-policies.spec
+@@ -64,6 +64,13 @@ defined in simple policy definition files.
+ The package also provides a tool fips-mode-setup, which can be used
+ to enable or disable the system FIPS mode.
+ 
++%package extra
++Summary: Additional crypto policy files on the basis of %{name}
++Requires: %{name} = %{version}-%{release}
++
++%description extra
++Additional crypto policy files on the basis of %{name}
++
+ %prep
+ %setup -q -n fedora-%{name}-%{git_commit_hash}-%{git_commit}
+ 
+@@ -122,12 +129,9 @@ make check %{?_smp_mflags}
+ %ghost %{_sysconfdir}/crypto-policies/back-ends/openjdk.config
+ %ghost %{_sysconfdir}/crypto-policies/back-ends/libreswan.config
+ 
+-%{_bindir}/update-crypto-policies
+ %{_mandir}/man7/crypto-policies.7*
+-%{_mandir}/man8/update-crypto-policies.8*
+ %{_datarootdir}/crypto-policies/LEGACY/*
+ %{_datarootdir}/crypto-policies/DEFAULT/*
+-%{_datarootdir}/crypto-policies/NEXT/*
+ %{_datarootdir}/crypto-policies/FUTURE/*
+ %{_datarootdir}/crypto-policies/FIPS/*
+ %{_datarootdir}/crypto-policies/EMPTY/*
+@@ -139,12 +143,18 @@ make check %{?_smp_mflags}
+ %files scripts
+ %{_bindir}/fips-mode-setup
+ %{_bindir}/fips-finish-install
++%{_bindir}/update-crypto-policies
++
+ %{_mandir}/man8/fips-mode-setup.8*
+ %{_mandir}/man8/fips-finish-install.8*
++%{_mandir}/man8/update-crypto-policies.8*
+ 
+ %{!?_licensedir:%global license %%doc}
+ %license COPYING.LESSER
+ 
++%files extra
++%{_datarootdir}/crypto-policies/NEXT/*
++
+ %changelog
+ * Thu Aug 27 2020 wangchen <wangchen137@huawei.com> - 20200619-1.git781bbd4
+ - update to 20200619
+-- 
+2.23.0
+

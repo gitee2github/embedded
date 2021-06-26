@@ -1,0 +1,279 @@
+From 6e28bb69e8b7128c053296c3cce1a281b31e6834 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 17:27:00 +0800
+Subject: [PATCH] split rpm systemd
+
+---
+ systemd.spec | 102 +++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 62 insertions(+), 40 deletions(-)
+
+diff --git a/systemd.spec b/systemd.spec
+index 26cab8d..cf9f2c8 100644
+--- a/systemd.spec
++++ b/systemd.spec
+@@ -142,14 +142,6 @@ BuildRequires:  gnu-efi gnu-efi-devel
+ BuildRequires:  valgrind-devel, util-linux
+ 
+ Requires:       %{name}-libs = %{version}-%{release}
+-Requires(post): coreutils
+-Requires(post): sed
+-Requires(post): acl
+-Requires(post): grep
+-Requires(post): openssl
+-Requires(pre):  coreutils
+-Requires(pre):  /usr/bin/getent
+-Requires(pre):  /usr/sbin/groupadd
+ Recommends:     diffutils
+ Recommends:     libxkbcommon%{?_isa}
+ Provides:       /bin/systemctl
+@@ -166,7 +158,6 @@ Recommends:     %{name}-help
+ 
+ Provides:       %{name}-pam
+ Provides:       %{name}-rpm-config
+-Obsoletes:      %{name}-pam
+ Obsoletes:      %{name}-rpm-config
+ 
+ %description
+@@ -196,10 +187,6 @@ Obsoletes:      systemd-compat-libs < 230
+ Obsoletes:      nss-myhostname < 0.4
+ Provides:       nss-myhostname = 0.4
+ Provides:       nss-myhostname%{_isa} = 0.4
+-Requires(post): coreutils
+-Requires(post): sed
+-Requires(post): grep
+-Requires(post): /usr/bin/getent
+ 
+ %description libs
+ Libraries for systemd and udev.
+@@ -269,6 +256,35 @@ systemd-udev-compat is a set of udev rules which conflict with NetworkManager.
+ If users choose to use the network-scripts to manager the network, the package can be used
+ to do somethings when down or up nics or disk.
+ 
++%package networkd
++Summary:        System daemon that manages network configurations
++Requires:       %{name}%{?_isa} = %{version}-%{release}
++Obsoletes:      %{name} < 229-5
++License:        LGPLv2+
++
++%description networkd
++systemd-networkd is a system service that manages networks. It detects
++and configures network devices as they appear, as well as creating virtual
++network devices.
++
++%package resolved
++Summary:        System daemon that manages resolve configurations
++Requires:       %{name}%{?_isa} = %{version}-%{release} %{name}-networkd
++Obsoletes:      %{name} < 229-5
++License:        LGPLv2+
++
++%description resolved
++systemd-resolved is a system service that manages networks. 
++
++%package pam
++Summary:        systemd PAM module
++Requires:       %{name}%{?_isa} = %{version}-%{release}
++Obsoletes:      %{name} < 229-5
++License:        LGPLv2+
++
++%description pam
++Systemd PAM module registers the session with systemd-logind.
++
+ %package_help
+ 
+ %prep
+@@ -783,12 +799,9 @@ fi
+ /usr/share/bash-completion/completions/portablectl
+ /usr/share/bash-completion/completions/systemd-run
+ /usr/share/bash-completion/completions/systemd-cat
+-/usr/share/bash-completion/completions/resolvectl
+ /usr/share/bash-completion/completions/coredumpctl
+ /usr/share/bash-completion/completions/systemd-delta
+ /usr/share/bash-completion/completions/systemd-cgls
+-/usr/share/bash-completion/completions/systemd-resolve
+-/usr/share/bash-completion/completions/networkctl
+ /usr/share/bash-completion/completions/systemd-detect-virt
+ /usr/share/bash-completion/completions/hostnamectl
+ /usr/share/bash-completion/completions/systemd-cgtop
+@@ -803,14 +816,12 @@ fi
+ /usr/share/zsh/site-functions/_journalctl
+ /usr/share/zsh/site-functions/_systemd-delta
+ /usr/share/zsh/site-functions/_systemd-tmpfiles
+-/usr/share/zsh/site-functions/_resolvectl
+ /usr/share/zsh/site-functions/_systemctl
+ /usr/share/zsh/site-functions/_systemd-run
+ /usr/share/zsh/site-functions/_sd_outputmodes
+ /usr/share/zsh/site-functions/_sd_unit_files
+ /usr/share/zsh/site-functions/_sd_machines
+ /usr/share/zsh/site-functions/_coredumpctl
+-/usr/share/zsh/site-functions/_networkctl
+ /usr/share/zsh/site-functions/_timedatectl
+ /usr/share/zsh/site-functions/_busctl
+ /usr/share/zsh/site-functions/_systemd
+@@ -821,29 +832,22 @@ fi
+ /usr/share/dbus-1/system-services/org.freedesktop.portable1.service
+ /usr/share/dbus-1/system-services/org.freedesktop.login1.service
+ /usr/share/dbus-1/system-services/org.freedesktop.locale1.service
+-/usr/share/dbus-1/system-services/org.freedesktop.resolve1.service
+ /usr/share/dbus-1/system-services/org.freedesktop.hostname1.service
+-/usr/share/dbus-1/system-services/org.freedesktop.network1.service
+ /usr/share/dbus-1/system-services/org.freedesktop.timedate1.service
+-/usr/share/dbus-1/system.d/org.freedesktop.resolve1.conf
+ /usr/share/dbus-1/system.d/org.freedesktop.timedate1.conf
+ /usr/share/dbus-1/system.d/org.freedesktop.hostname1.conf
+ /usr/share/dbus-1/system.d/org.freedesktop.login1.conf
+ /usr/share/dbus-1/system.d/org.freedesktop.systemd1.conf
+ /usr/share/dbus-1/system.d/org.freedesktop.locale1.conf
+ /usr/share/dbus-1/system.d/org.freedesktop.portable1.conf
+-/usr/share/dbus-1/system.d/org.freedesktop.network1.conf
+ /usr/share/pkgconfig/systemd.pc
+ /usr/share/pkgconfig/udev.pc
+ /usr/share/polkit-1/actions/org.freedesktop.hostname1.policy
+ /usr/share/polkit-1/actions/org.freedesktop.portable1.policy
+ /usr/share/polkit-1/actions/org.freedesktop.timedate1.policy
+-/usr/share/polkit-1/actions/org.freedesktop.resolve1.policy
+ /usr/share/polkit-1/actions/org.freedesktop.systemd1.policy
+ /usr/share/polkit-1/actions/org.freedesktop.login1.policy
+-/usr/share/polkit-1/actions/org.freedesktop.network1.policy
+ /usr/share/polkit-1/actions/org.freedesktop.locale1.policy
+-/usr/share/polkit-1/rules.d/systemd-networkd.rules
+ /usr/bin/systemd-machine-id-setup
+ /usr/bin/localectl
+ /usr/bin/systemd-path
+@@ -855,13 +859,10 @@ fi
+ /usr/bin/systemd-cat
+ /usr/bin/systemd-inhibit
+ /usr/bin/systemd-ask-password
+-/usr/bin/resolvectl
+ /usr/bin/systemd-notify
+ /usr/bin/coredumpctl
+ /usr/bin/systemd-delta
+ /usr/bin/systemd-cgls
+-/usr/bin/systemd-resolve
+-/usr/bin/networkctl
+ /usr/bin/systemd-stdio-bridge
+ /usr/bin/systemd-detect-virt
+ /usr/bin/systemd-socket-activate
+@@ -894,14 +895,12 @@ fi
+ %{_systemddir}/purge-nobody-user
+ %dir %{_systemddir}/system-shutdown
+ %dir %{_systemddir}/catalog
+-%dir %{_systemddir}/network
+ %{_systemddir}/systemd-cgroups-agent
+ %{_systemddir}/systemd-sulogin-shell
+ %{_systemddir}/systemd-boot-check-no-failures
+ %dir %{_systemddir}/ntp-units.d
+ %{_systemddir}/systemd-user-sessions
+ %{_systemddir}/systemd-sysctl
+-%{_systemddir}/systemd-networkd-wait-online
+ %{_systemddir}/systemd-socket-proxyd
+ %{_systemddir}/systemd-ac-power
+ %{_systemddir}/systemd-hostnamed
+@@ -912,7 +911,6 @@ fi
+ %{_systemddir}/systemd-journald
+ %{_systemddir}/systemd-user-runtime-dir
+ %{_systemddir}/systemd-logind
+-%{_systemddir}/systemd-networkd
+ %dir %{_systemddir}/system-preset
+ %dir %{_systemddir}/user-environment-generators
+ %{_systemddir}/systemd-shutdown
+@@ -935,7 +933,6 @@ fi
+ %{_systemddir}/systemd-network-generator
+ %{_systemddir}/systemd-time-wait-sync
+ %{_systemddir}/systemd-pstore
+-%{_systemddir}/systemd-resolved
+ %{_systemddir}/systemd-binfmt
+ %{_systemddir}/user-preset/90-systemd.preset
+ %dir %{_systemddir}/portable/profile
+@@ -947,7 +944,6 @@ fi
+ %{_systemddir}/portable/profile/trusted/service.conf
+ %{_systemddir}/portable/profile/nonetwork/service.conf
+ %{_systemddir}/portable/profile/strict/service.conf
+-%{_unitdir}/systemd-networkd.socket
+ %{_unitdir}/systemd-binfmt.service
+ %{_unitdir}/systemd-machine-id-commit.service
+ %dir %{_unitdir}/basic.target.wants
+@@ -1018,7 +1014,6 @@ fi
+ %{_unitdir}/systemd-update-utmp.service
+ %dir %{_unitdir}/rescue.target.wants
+ %{_unitdir}/bluetooth.target
+-%{_unitdir}/systemd-networkd-wait-online.service
+ %{_unitdir}/systemd-ask-password-wall.path
+ %{_unitdir}/emergency.service
+ %{_unitdir}/network-pre.target
+@@ -1071,13 +1066,11 @@ fi
+ %{_unitdir}/runlevel1.target
+ %dir %{_unitdir}/remote-fs.target.wants
+ %{_unitdir}/dbus-org.freedesktop.hostname1.service
+-%{_unitdir}/systemd-networkd.service
+ %{_unitdir}/runlevel0.target
+ %{_unitdir}/user.slice
+ %{_unitdir}/systemd-journal-catalog-update.service
+ %{_unitdir}/local-fs-pre.target
+ %{_unitdir}/systemd-halt.service
+-%{_unitdir}/systemd-resolved.service
+ %{_unitdir}/container-getty@.service
+ %{_unitdir}/slices.target
+ %{_unitdir}/systemd-network-generator.service
+@@ -1165,7 +1158,6 @@ fi
+ %{_userunitdir}/systemd-tmpfiles-clean.timer
+ %{_userunitdir}/sockets.target
+ %{_userunitdir}/smartcard.target
+-%{_systemddir}/network/80-container-host0.network
+ %{_systemddir}/catalog/systemd.fr.catalog
+ %{_systemddir}/catalog/systemd.be.catalog
+ %{_systemddir}/catalog/systemd.bg.catalog
+@@ -1212,8 +1204,6 @@ fi
+ %config(noreplace) /etc/systemd/coredump.conf
+ %dir /etc/systemd/user
+ %config(noreplace) /etc/systemd/logind.conf
+-%config(noreplace) /etc/systemd/networkd.conf
+-%config(noreplace) /etc/systemd/resolved.conf
+ %config(noreplace) /etc/systemd/journald.conf
+ %config(noreplace) /etc/systemd/pstore.conf
+ %dir /etc/systemd/system
+@@ -1230,9 +1220,41 @@ fi
+ %dir /etc/xdg/systemd
+ %config(noreplace) /etc/xdg/systemd/user
+ 
+-/usr/lib64/security/pam_systemd.so
+ /usr/lib/rpm/macros.d/macros.systemd
+ 
++%files networkd
++%config(noreplace) /etc/systemd/networkd.conf
++/usr/bin/networkctl
++%dir %{_systemddir}/network
++%{_systemddir}/network/80-container-host0.network
++%{_unitdir}/systemd-networkd-wait-online.service
++%{_unitdir}/systemd-networkd.socket
++%{_unitdir}/systemd-networkd.service
++%{_systemddir}/systemd-networkd-wait-online
++%{_systemddir}/systemd-networkd
++/usr/share/bash-completion/completions/networkctl
++/usr/share/dbus-1/system-services/org.freedesktop.network1.service
++/usr/share/dbus-1/system.d/org.freedesktop.network1.conf
++/usr/share/polkit-1/actions/org.freedesktop.network1.policy
++/usr/share/polkit-1/rules.d/systemd-networkd.rules
++/usr/share/zsh/site-functions/_networkctl
++
++%files resolved
++%config(noreplace) /etc/systemd/resolved.conf
++/usr/bin/resolvectl
++/usr/bin/systemd-resolve
++%{_systemddir}/systemd-resolved
++%{_unitdir}/systemd-resolved.service
++/usr/share/bash-completion/completions/systemd-resolve
++/usr/share/bash-completion/completions/resolvectl
++/usr/share/zsh/site-functions/_resolvectl
++/usr/share/dbus-1/system-services/org.freedesktop.resolve1.service
++/usr/share/dbus-1/system.d/org.freedesktop.resolve1.conf
++/usr/share/polkit-1/actions/org.freedesktop.resolve1.policy
++
++%files pam
++/usr/lib64/security/pam_systemd.so
++
+ %files libs
+ /usr/lib64/libnss_systemd.so.2
+ /usr/lib64/libnss_resolve.so.2
+-- 
+2.30.0.windows.2
+

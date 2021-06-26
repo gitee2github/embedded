@@ -1,0 +1,46 @@
+From 203cdfb18c50a3c73417c409fb582939c17a81e2 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Tue, 23 Mar 2021 11:32:22 +0800
+Subject: [PATCH] split rpm e2fsprogs tools
+
+---
+ e2fsprogs.spec | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/e2fsprogs.spec b/e2fsprogs.spec
+index bd31fbd..cffedbc 100644
+--- a/e2fsprogs.spec
++++ b/e2fsprogs.spec
+@@ -46,6 +46,15 @@ Obsoletes: e2fsprogs-static
+ This package provides libraries and header files to develop
+ second extended file system userspace programs.
+ 
++%package tools
++Summary: Ext2/3/4 file system specific tools
++License: GPLv2 and LGPLv2
++Requires: e2fsprogs = %{version}-%{release}
++
++%description tools
++These tools are used to directly access ext2/3/4 file systems
++from user space.
++
+ %package help
+ Summary: man files for e2fsprogs
+ Requires: man
+@@ -104,10 +113,12 @@ exit 0
+ %{_libdir}/libext2fs.so.*
+ %{_libdir}/libcom_err.so.*
+ %{_libdir}/libss.so.*
+-%{_sbindir}/*
+ %{_udevrulesdir}/*.rules
+ %{_unitdir}/e2scrub*
+ 
++%files tools
++%{_sbindir}/*
++
+ %files devel
+ %{_bindir}/compile_et
+ %{_bindir}/mk_cmds
+-- 
+2.30.0.windows.2
+

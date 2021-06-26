@@ -1,0 +1,128 @@
+#!/bin/sh
+set -e
+
+SCRIPT_DIR=$(realpath $(dirname "$0"))
+CURRENT_DIR=$(realpath $(pwd))
+
+WORKDIR=$CURRENT_DIR/abuild
+SDIR=$CURRENT_DIR
+
+ARCH=$(uname -m)
+REPO_FILE=""
+CPU_SETS="0-$(($(nproc) - 1))"
+IMG_NAME="fedora"
+
+PATH=$SCRIPT_DIR:$PATH
+source $SCRIPT_DIR/common.sh
+
+function usage()
+{
+    log_info "Usage: ./$(basename $0) -a [aarch64|x86_64] -r [repo] -s [source dir] -d [work dir] -c [cpu sets] -t [docker image]"
+}
+
+function param_parse()
+{
+    while getopts "a:r:s:d:c:t:" opt
+    do
+        case "$opt" in
+            a)
+            ARCH="$OPTARG";;
+            r)
+            REPO_FILE="$OPTARG";;
+            s)
+            SDIR="$OPTARG";;
+            d)
+            WORKDIR="$OPTARG";;
+            c)
+            CPU_SETS="$OPTARG";;
+            t)
+            IMG_NAME="$OPTARG";;
+            ?)
+            log_error "unknown parameters" && usage && return 1;;
+        esac
+    done
+
+    [[ ! -n $ARCH ]] && log_error "empty parameter, -a" && usage && return 1
+    [[ ! -n $REPO_FILE ]] && log_error "empty parameter, -r" && usage && return 1
+    [[ ! -n $SDIR ]] && log_error "empty parameter, -s" && usage && return 1
+    [[ ! -n $WORKDIR ]] && log_error "empty parameter, -d" && usage && return 1
+    [[ ! -n $CPU_SETS ]] && log_error "empty parameter, -c" && usage && return 1
+    [[ ! -n $IMG_NAME ]] && log_error "empty parameter, -t" && usage && return 1
+
+    ( [[ $ARCH != "aarch64" ]] && [[ $ARCH != "x86_64" ]] ) && usage && return 1
+
+    REPO_FILE=$(realpath $REPO_FILE)
+    [[ ! -f $REPO_FILE ]] && log_error "repo file not exit" && usage && return 1
+
+    SDIR=$(realpath $SDIR)
+    [[ ! -d $SDIR ]] && log_error "source dir not exist" && usage && return 1
+
+    WORKDIR=$(realpath $WORKDIR)
+    [[ ! -d $WORKDIR ]] && log_error "work dir not exist" && usage && return 1
+
+    return 0
+}
+
+function directory_init()
+{
+    local clearflag=$1
+
+    [[ $clearflag == 1 ]] && [[ -d $WORKDIR ]] && rm -rf $WORKDIR
+    mkdir -p $WORKDIR
+}
+
+function dockercmd_gen()
+{
+    local sdir=$1
+    local repof=$2
+    local wdir=$3
+    local cmdfdir=$4
+
+    cat << EOF >$cmdfdir
+#!/bin/bash
+# add scripts to path
+PATH=$wdir/scripts/:\$PATH
+chmod 755 $wdir/scripts/*
+# build
+buildrpm -a $ARCH -r $repof -d $wdir -s $sdir
+EOF
+}
+
+function main()
+{
+    param_parse $@
+    directory_init 0
+
+    local repof_name=$(basename $REPO_FILE)
+    cp $REPO_FILE $WORKDIR/$repof_name
+
+    local img_wdir=/root
+    local img_sdir=$img_wdir/rpmbuild/SOURCES
+
+    dockercmd_gen "$img_sdir" "$img_wdir/$repof_name" "$img_wdir" "$WORKDIR/cmd.sh"
+
+    local comm_opt="--network host --rm --privileged --cpuset-cpus $CPU_SETS -t $IMG_NAME"
+    local maps_opt="-v $WORKDIR:$img_wdir -v $SDIR:$img_sdir"
+
+    # mapping repod to docker container
+    local baseurl=$(sed -n 's/baseurl=//p' $WORKDIR/$repof_name)
+    for pathcnt in $(seq 1 $(echo $baseurl | wc -w))
+    do
+        local onebase=$(echo $baseurl | cut -d ' ' -f $pathcnt)
+        if [[ -n $onebase ]] && [[ -d $onebase ]]; then
+            local img_repod=/repos_$pathcnt
+            local maps_opt="$maps_opt -v $onebase:$img_repod"
+            sed -i "s@baseurl=$onebase@baseurl=$img_repod@" $WORKDIR/$repof_name
+        fi
+    done
+
+    # copy scripts into workdir
+    [[ ! -d $WORKDIR/scripts ]] && mkdir $WORKDIR/scripts && cp $SCRIPT_DIR/* $WORKDIR/scripts/
+
+    docker run $maps_opt $comm_opt sh "$img_wdir/cmd.sh" || return $?
+
+    return 0
+}
+
+main $@
+

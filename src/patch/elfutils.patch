@@ -1,0 +1,103 @@
+From 1c195a2c996c21f390e1c723ce3001cf8c4786f7 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Mon, 22 Mar 2021 09:44:49 +0000
+Subject: [PATCH] fix: extract tools/libelf/default-yama-scope packages
+
+---
+ elfutils.spec | 55 +++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 45 insertions(+), 10 deletions(-)
+
+diff --git a/elfutils.spec b/elfutils.spec
+index 4b23677..378116a 100644
+--- a/elfutils.spec
++++ b/elfutils.spec
+@@ -8,8 +8,8 @@ License: GPLv3+ and (GPLv2+ or LGPLv3+)
+ Source: ftp://sourceware.org/pub/elfutils/%{version}/elfutils-%{version}.tar.bz2
+ 
+ Provides:  elfutils-libelf elfutils-default-yama-scope default-yama-scope elfutils-libs
+-Obsoletes: elfutils-libelf elfutils-default-yama-scope elfutils-libs
+-Requires: glibc >= 2.7 libstdc++
++BuildRequires: libstdc++
++Requires: glibc >= 2.7
+ 
+ BuildRoot: %{_tmppath}/%{name}-root
+ BuildRequires: gcc >= 4.1.2-33 m4 zlib-devel gdb-headless
+@@ -44,6 +44,32 @@ interprocess services, communication and introspection
+ (like synchronisation, signaling, debugging, tracing and
+ profiling) of processes.
+ 
++%package tools
++Summary: A collection of utilities and DSOs to handle ELF files and DWARF data
++License: GPLv2+ or LGPLv3+
++Requires: elfutils = %{version}-%{release}
++
++%description tools
++Elfutils is a collection of utilities, including stack (to show backtraces), nm (for listing symbols from object files), size
++(for listing the section sizes of an object or archive file), readelf (to see the raw ELF file structures), elfint (to check
++ for well-formed ELF files) and elfcompress (to compress or decompress ELF sections).
++
++%package libelf
++Summary: Library to read and write ELF files
++License: GPLv2+ or LGPLv3+
++Requires: elfutils = %{version}-%{release}
++
++%description libelf
++Library to read and write ELF files
++
++%package default-yama-scope
++Summary: Default yama attach scope sysctl setting
++License: GPLv2+ or LGPLv3+
++Requires: elfutils = %{version}-%{release}
++
++%description default-yama-scope
++Library to read and write ELF files
++
+ %package devel
+ Summary: Development libraries to handle compiled objects.
+ License: GPLv2+ or LGPLv3+
+@@ -140,8 +166,20 @@ rm -rf ${RPM_BUILD_ROOT}
+ %defattr(-,root,root)
+ %license COPYING COPYING-GPLV2 COPYING-LGPLV3
+ %doc README TODO CONTRIBUTING
+-%{_bindir}/eu-addr2line
++%{_bindir}/eu-strip
++%{_libdir}/libasm-%{version}.so
++%{_libdir}/libasm.so.*
++%{_libdir}/libdw-%{version}.so
++%{_libdir}/libdw.so.*
++
++%files default-yama-scope
++%defattr(-,root,root)
++%{_sysctldir}/10-default-yama-scope.conf
++
++%files tools
++%defattr(-,root,root)
+ %{_bindir}/eu-ar
++%{_bindir}/eu-addr2line
+ %{_bindir}/eu-elfclassify
+ %{_bindir}/eu-elfcmp
+ %{_bindir}/eu-elfcompress
+@@ -155,16 +193,13 @@ rm -rf ${RPM_BUILD_ROOT}
+ %{_bindir}/eu-size
+ %{_bindir}/eu-stack
+ %{_bindir}/eu-strings
+-%{_bindir}/eu-strip
+ %{_bindir}/eu-unstrip
+-%{_libdir}/libasm-%{version}.so
+-%{_libdir}/libasm.so.*
+-%{_libdir}/libdw-%{version}.so
+-%{_libdir}/libdw.so.*
++%{_datadir}/locale/*/LC_MESSAGES/elfutils.mo
++
++%files libelf
++%defattr(-,root,root)
+ %{_libdir}/libelf-%{version}.so
+ %{_libdir}/libelf.so.*
+-%{_datadir}/locale/*/LC_MESSAGES/elfutils.mo
+-%{_sysctldir}/10-default-yama-scope.conf
+ 
+ %files devel
+ %defattr(-,root,root)
+-- 
+2.23.0
+

@@ -1,0 +1,33 @@
+From ff03fd8e0abb2a2db05ca14e82f58d3140f719c9 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 15:58:52 +0800
+Subject: [PATCH] delete low version so
+
+---
+ json-c.spec | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/json-c.spec b/json-c.spec
+index cbb627c..980abb2 100644
+--- a/json-c.spec
++++ b/json-c.spec
+@@ -73,8 +73,6 @@ doxygen -s -u doc/Doxyfile.in
+ #%cmake_install
+ DESTDIR="%{buildroot}" %__cmake --install "%{_vpath_builddir}"
+ 
+-cp -a %{_libdir}/libjson-c.so.4 $RPM_BUILD_ROOT%{_libdir}
+-cp -a %{_libdir}/libjson-c.so.4.0.0 $RPM_BUILD_ROOT%{_libdir}
+ 
+ mkdir -p %{buildroot}%{_pkgdocdir}
+ hardlink -cfv %{buildroot}%{_pkgdocdir}
+@@ -84,7 +82,6 @@ hardlink -cfv %{buildroot}%{_pkgdocdir}
+ %files
+ %license AUTHORS COPYING
+ %{_libdir}/lib%{name}.so.%{so_ver}*
+-%{_libdir}/libjson-c.so.4*
+ 
+ %files devel
+ %{_includedir}/%{name}/
+-- 
+2.30.0.windows.2
+

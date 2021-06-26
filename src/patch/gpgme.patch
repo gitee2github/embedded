@@ -1,0 +1,54 @@
+From 6204052173736d6fa21bf2dff5c524e9a77f2e65 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 03:38:37 +0000
+Subject: [PATCH] fix: extract some files to new added sub-package json-tool,
+ add compile depends on gnupg2-utils and gnupg2-smime.
+
+---
+ gpgme.spec | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/gpgme.spec b/gpgme.spec
+index 629657e..a1a1fcc 100644
+--- a/gpgme.spec
++++ b/gpgme.spec
+@@ -18,6 +18,8 @@ BuildRequires:  autoconf automake gcc gcc-c++ gawk gnupg2 >= 2.1.18
+ BuildRequires:  libgpg-error-devel >= 1.24 libassuan-devel >= 2.4.2
+ BuildRequires:  swig chrpath cmake qt5-qtbase-devel python2-devel python3-devel
+ BuildRequires:  gdb
++BuildRequires:  gnupg2-utils >= 2.1.18
++BuildRequires:  gnupg2-smime >= 2.1.18
+ Requires:       gnupg2 >= 2.1.18
+ Provides:       %{name}%{?_isa} <= %{version}-%{release}
+ 
+@@ -29,6 +31,13 @@ encryption, decryption, signing, signature verification and key
+ management.
+ This package provides C/C++/Qt/Python API support for GPGME.
+ 
++%package json-tool
++Summary:        json tools for gpgme
++Requires:       %{name} = %{version}-%{release}
++
++%description json-tool
++json tools for gpgme
++
+ %package -n cpp-%{name}
+ Summary:        C++ API wrapper for GPGME
+ Requires:       %{name} = %{version}-%{release}
+@@ -126,9 +135,12 @@ fi
+ %defattr(-,root,root)
+ %license COPYING*
+ %doc AUTHORS ChangeLog NEWS README THANKS TODO VERSION
+-%{_bindir}/%{name}-json
+ %{_libdir}/lib%{name}.so.11*
+ 
++%files json-tool
++%defattr(-,root,root)
++%{_bindir}/%{name}-json
++
+ %files -n cpp-%{name}
+ %doc lang/cpp/README
+ %{_libdir}/lib%{name}pp.so.*
+-- 
+2.23.0
+

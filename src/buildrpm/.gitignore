@@ -1,0 +1,4 @@
+.vscode
+output
+*.log
+log.txt

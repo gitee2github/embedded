@@ -1,0 +1,49 @@
+From f64c001c01fffca3d6fc1720067aadc879856aec Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 09:18:12 +0000
+Subject: [PATCH] fix: extract tool files except bzip2/bunzip2 to new added
+ sub-package
+
+---
+ bzip2.spec | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/bzip2.spec b/bzip2.spec
+index ba0b4b5..32e729b 100644
+--- a/bzip2.spec
++++ b/bzip2.spec
+@@ -22,6 +22,13 @@ It typically compresses files to within 10% to 15% of the best available
+ techniques (the PPM family of statistical compressors), whilst being
+ around twice as fast at compression and six times faster at decompression.
+ 
++%package	utils
++Summary:	tool files for bzip2
++Requires:	%{name} = %{version}-%{release}
++
++%description	utils
++Tool files for bzip2
++
+ %package	devel
+ Summary:	header files for bzip2
+ Requires:	%{name} = %{version}-%{release}
+@@ -75,9 +82,16 @@ make check
+ %defattr(-,root,root)
+ %doc CHANGES LICENSE README
+ %license LICENSE
+-%{_bindir}/*
++%{_bindir}/bunzip2
++%{_bindir}/bzip2
+ %{_libdir}/*.so.*
+ 
++%files utils
++%defattr(-,root,root)
++%{_bindir}/*
++%exclude %{_bindir}/bunzip2
++%exclude %{_bindir}/bzip2
++
+ %files devel
+ %defattr(-,root,root)
+ %{_includedir}/bzlib.h
+-- 
+2.23.0
+

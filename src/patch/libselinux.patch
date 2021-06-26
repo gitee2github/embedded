@@ -1,0 +1,47 @@
+From 4fd701177ce0d2502cf33a9b4b2b3a8f59cf2891 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:25:06 +0800
+Subject: [PATCH] split rpm libselinux-utils
+
+---
+ libselinux.spec | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/libselinux.spec b/libselinux.spec
+index ccbb9bf..4ee369b 100644
+--- a/libselinux.spec
++++ b/libselinux.spec
+@@ -21,6 +21,13 @@ Provides:  %{name}-utils
+ libselinux provides an interface to get and set process and file
+ security contexts and to obtain security policy decisions.
+ 
++%package utils
++Summary: SELinux libselinux utilities
++Requires: %{name} = %{version}-%{release}
++
++%description utils
++The libselinux-utils package contains the utilities
++
+ %package devel
+ Summary: Header files and libraries used to build SELinux
+ Requires: %{name} = %{version}-%{release}
+@@ -109,12 +116,14 @@ mv %{buildroot}%{_sbindir}/getconlist %{buildroot}%{_sbindir}/selinuxconlist
+ %files
+ %license LICENSE
+ %{_libdir}/libselinux.so.*
++%dir %{_rundir}/setrans/
++%{_tmpfilesdir}/libselinux.conf
++
++%files utils
+ %{_sbindir}/{selabel_lookup_best_match,selabel_partial_match,selinux_check_access}
+ %{_sbindir}/{avcstat,getenforce,getsebool,matchpathcon,sefcontext_compile,selinuxconlist}
+ %{_sbindir}/{selinuxdefcon,selinuxexeccon,selinuxenabled,setenforce,selabel_digest,selabel_lookup}
+ %{_sbindir}/{selabel_get_digests_all_partial_matches,validatetrans}
+-%dir %{_rundir}/setrans/
+-%{_tmpfilesdir}/libselinux.conf
+ 
+ %files devel
+ %{_libdir}/libselinux.a
+-- 
+2.30.0.windows.2
+

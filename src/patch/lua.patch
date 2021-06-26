@@ -1,0 +1,50 @@
+From e7f7c89166ba18c99ddb6d38175cc08b040b72ed Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:37:33 +0800
+Subject: [PATCH] split rpm lua-tools
+
+---
+ lua.spec | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/lua.spec b/lua.spec
+index 3eba84f..394c2de 100644
+--- a/lua.spec
++++ b/lua.spec
+@@ -48,6 +48,13 @@ Provides:       %{name}-static = %{version}-%{release}
+ %description devel
+ This package contains development files for %{name}.
+ 
++%package tools
++Summary:        Tools for %{name}.
++Requires:       %{name}%{?_isa} = %{version}-%{release}
++
++%description tools
++This package contains the tools for %{name}.
++
+ %package_help
+ 
+ %prep
+@@ -110,8 +117,6 @@ LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_bindir}/lua -e"_U=
+ %files
+ %defattr(-,root,root)
+ %license mit.txt
+-%{_bindir}/lua
+-%{_bindir}/luac
+ %dir %{_libdir}/lua
+ %dir %{_libdir}/lua/%{major_version}
+ %dir %{_datadir}/lua
+@@ -119,6 +124,10 @@ LD_LIBRARY_PATH=$RPM_BUILD_ROOT/%{_libdir} $RPM_BUILD_ROOT/%{_bindir}/lua -e"_U=
+ %{_libdir}/liblua-%{major_version}.so
+ %{_libdir}/liblua.so
+ 
++%files tools
++%{_bindir}/lua
++%{_bindir}/luac
++
+ %files devel
+ %defattr(-,root,root)
+ %{_includedir}/l*.h
+-- 
+2.30.0.windows.2
+

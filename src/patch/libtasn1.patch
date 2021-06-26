@@ -1,0 +1,44 @@
+From 4dea765314fb6dcba8ae90ec9d64bc0ac534cdd1 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:33:37 +0800
+Subject: [PATCH] split rpm libtasn1-tools
+
+---
+ libtasn1.spec | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/libtasn1.spec b/libtasn1.spec
+index 5424a4f..dee81ce 100644
+--- a/libtasn1.spec
++++ b/libtasn1.spec
+@@ -32,6 +32,14 @@ Requires:	info
+ %description devel
+ This package contains header files and so files for development.
+ 
++%package tools
++Summary:    Some ASN.1 tools
++Requires:   %{name}%{?_isa} = %{version}-%{release}
++
++%description tools
++This package contains simple tools that can decode and encode ASN.1
++data.
++
+ %package_help
+ 
+ %prep
+@@ -65,9 +73,11 @@ test "$1" = 0 -a -f %_infodir/%name.info.gz && \
+ %files
+ %license LICENSE doc/COPYING*
+ %doc AUTHORS NEWS README.md THANKS
+-%{_bindir}/asn1*
+ %{_libdir}/*.so.6*
+ 
++%files tools
++%{_bindir}/asn1*
++
+ %files devel
+ %{_libdir}/*.so
+ %{_libdir}/pkgconfig/*.pc
+-- 
+2.30.0.windows.2
+

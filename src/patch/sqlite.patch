@@ -1,0 +1,99 @@
+From d776a716a68ce675366703d37e6c1ad8ab546f83 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 17:24:13 +0800
+Subject: [PATCH] split rpm sqlite
+
+---
+ sqlite.spec | 51 ++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 44 insertions(+), 7 deletions(-)
+
+diff --git a/sqlite.spec b/sqlite.spec
+index 3250f45..3b99868 100644
+--- a/sqlite.spec
++++ b/sqlite.spec
+@@ -24,13 +24,9 @@ BuildRequires: ncurses-devel readline-devel glibc-devel
+ 
+ 
+ Provides:  %{name}-libs
+-Obsoletes: %{name}-libs
+ Provides:  lemon
+-Obsoletes: lemon
+ Provides:  %{name}-analyzer
+-Obsoletes: %{name}-analyzer
+ Provides:  %{name}-tcl
+-Obsoletes: %{name}-tcl
+ 
+ %description
+ SQLite is a C-language library that implements a small, fast, self-contained,
+@@ -56,6 +52,37 @@ Obsoletes: %{name}-doc
+ %description help
+ This contains man files and HTML files for the using of sqlite.
+ 
++%package tools
++Summary:   Tools for the sqlite3 embeddable SQL database engine.
++
++%description tools
++This package contains the tools for sqlite.
++
++%package analyzer
++Summary:   An analysis program for sqlite3 database files
++
++%description analyzer
++This package contains the analysis program for sqlite.
++
++%package tcl
++Summary:   Tcl module for the sqlite3 embeddable SQL database engine
++
++%description tcl
++This package contains the tcl modules for sqlite.
++
++%package -n lemon
++Summary:   A parser generator
++
++%description -n lemon
++Lemon is an LALR(1) parser generator for C or C++. It does the same
++job as bison and yacc. But lemon is not another bison or yacc
++clone. It uses a different grammar syntax which is designed to reduce
++the number of coding errors. Lemon also uses a more sophisticated
++parsing engine that is faster than yacc and bison and which is both
++reentrant and thread-safe. Furthermore, Lemon implements features
++that can be used to eliminate resource leaks, making is suitable for
++use in long-running programs such as graphical user interfaces or
++embedded controllers.
+ 
+ %prep
+ #autosetup will fail because of 2 zip files
+@@ -119,10 +146,7 @@ make test
+ 
+ %files
+ %doc README.md
+-%{_bindir}/{sqlite3,lemon,sqlite3_analyzer}
+ %{_libdir}/*.so.*
+-%{_datadir}/lemon
+-%{tcl_sitearch}/sqlite3
+ %exclude %{_libdir}/*.{la,a}
+ 
+ %files devel
+@@ -134,6 +158,19 @@ make test
+ %doc %{name}-doc-%{extver}/*
+ %{_mandir}/man*/*
+ 
++%files tools
++%{_bindir}/sqlite3
++
++%files analyzer
++%{_bindir}/sqlite3_analyzer
++
++%files tcl
++%{tcl_sitearch}/sqlite3
++
++%files -n lemon
++%{_bindir}/lemon
++%{_datadir}/lemon
++
+ %changelog
+ * Thu Sep 2 2020 lihaotian<lihaotian9@huawei.com> - 3.32.3-2
+ - update source0 url
+-- 
+2.30.0.windows.2
+

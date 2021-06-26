@@ -1,0 +1,47 @@
+From 4c58103fc39f77ac6af66d90ea5db7263af2a374 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <529076828@qq.com>
+Date: Fri, 18 Jun 2021 01:30:22 +0000
+Subject: [PATCH] split libraries to expat-libs package
+
+---
+ expat.spec | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/expat.spec b/expat.spec
+index 380fd5a..003fdb2 100644
+--- a/expat.spec
++++ b/expat.spec
+@@ -23,6 +23,12 @@ Requires:       %{name} = %{version}-%{release}
+ %description devel
+ This package provides with static libraries and  header files for developing with expat.
+ 
++%package libs
++Summary:        Bin Development files
++
++%description libs
++This package provides bin documents for developing with expat.
++
+ %package_help
+ 
+ %prep
+@@ -45,7 +51,6 @@ make check
+ %files
+ %defattr(-,root,root)
+ %license COPYING AUTHORS
+-%{_bindir}/*
+ %{_libdir}/libexpat.so.1*
+ %exclude %{_docdir}/%{name}/AUTHORS
+ 
+@@ -55,6 +60,9 @@ make check
+ %{_libdir}/{libexpat.*a,libexpat.so}
+ %{_libdir}/pkgconfig/expat.pc
+ 
++%files libs
++%{_bindir}/*
++
+ %files help
+ %defattr(-,root,root)
+ %doc README.md
+-- 
+2.23.0
+

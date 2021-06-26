@@ -1,0 +1,61 @@
+From 231916e945de1a8974768f5f9eae44f5b66a5e49 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:21:24 +0800
+Subject: [PATCH] split rpm psl & psl-make-dafsa
+
+---
+ libpsl.spec | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/libpsl.spec b/libpsl.spec
+index de85762..83bb353 100644
+--- a/libpsl.spec
++++ b/libpsl.spec
+@@ -10,9 +10,7 @@ BuildRequires:	gcc git gdb gtk-doc glib2-devel libxslt python3-devel
+ BuildRequires:	libicu-devel libidn2-devel publicsuffix-list libunistring-devel 
+ Requires:	publicsuffix-list
+ Provides:       psl = %{version}-%{release}
+-Obsoletes:      psl <= %{version}-%{release}
+ Provides:       psl-make-dafsa = %{version}-%{release}
+-Obsoletes:      psl-make-dafsa <= %{version}-%{release}
+ 
+ %description
+ Libpsl is a C library to handle the Public Suffix List. A Public Suffix List is a
+@@ -48,6 +46,22 @@ Requires:	man
+ %description 	help
+ The %{name}-help package contains doc files for %{name}.
+ 
++%package -n         psl
++Summary:            Commandline utility to explore the Public Suffix List
++
++%description -n     psl
++This package contains a commandline utility to explore the Public Suffix List,
++for example it checks if domains are public suffixes, checks if cookie-domain
++is acceptable for domains and so on.
++
++%package -n         psl-make-dafsa
++Summary:            Compiles the Public Suffix List into DAFSA form
++
++%description -n     psl-make-dafsa
++This script produces C/C++ code or an architecture-independent binary object
++which represents a Deterministic Acyclic Finite State Automaton (DAFSA)
++from a plain text Public Suffix List.
++
+ %prep
+ %autosetup -n %{name}-%{version} -p1 -S git
+ sed -i -e "1s|#!.*|#!%{__python3}|" src/psl-make-dafsa
+@@ -82,7 +96,11 @@ make check
+ %files
+ %license COPYING AUTHORS
+ %{_libdir}/%{name}.so.*
++
++%files -n psl
+ %{_bindir}/psl
++
++%files -n psl-make-dafsa
+ %{_bindir}/psl-make-dafsa
+ 
+ %files devel
+-- 
+2.30.0.windows.2
+

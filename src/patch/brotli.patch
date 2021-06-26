@@ -1,0 +1,47 @@
+From b8d2ca5a6f2a7faae49be30870142199ee5a86e9 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Thu, 11 Mar 2021 06:26:23 +0000
+Subject: [PATCH] =?UTF-8?q?fix:=20=E6=8B=86=E5=87=BA=E5=AD=90=E5=8C=85brot?=
+ =?UTF-8?q?li-utils?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ brotli.spec | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/brotli.spec b/brotli.spec
+index 3f49f63..0ea87c8 100644
+--- a/brotli.spec
++++ b/brotli.spec
+@@ -27,6 +27,13 @@ coding and 2nd order context modeling, with a compression ratio comparable
+ to the best currently available general-purpose compression methods.
+ It is similar in speed with deflate but offers more dense compression.
+ 
++%package     utils
++Summary:        tools for brotli
++Requires:       %{name} = %{version}-%{release}
++
++%description utils
++Tools for brotli.
++
+ %package     -n python2-%{name}
+ Summary:        Lossless compression algorithm (python 2)
+ Requires:       python2
+@@ -97,9 +104,11 @@ popd
+ 
+ %files
+ %license LICENSE
+-%{_bindir}/brotli
+ %{_libdir}/*.so.*
+ 
++%files utils
++%{_bindir}/brotli
++
+ %files -n python2-%{name}
+ %license LICENSE
+ %{python2_sitearch}/*
+-- 
+2.23.0
+

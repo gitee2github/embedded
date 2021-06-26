@@ -1,0 +1,57 @@
+From 8641024fb9ed709a1bcde41ec82f6782735e12e6 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 15:29:54 +0800
+Subject: [PATCH] split rpm cracklib-dicts
+
+---
+ cracklib.spec | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
+
+diff --git a/cracklib.spec b/cracklib.spec
+index 12769dd..3e6e19a 100644
+--- a/cracklib.spec
++++ b/cracklib.spec
+@@ -48,6 +48,18 @@ Requires: %{name} = %{version}-%{release}
+ The cracklib-devel package contains the header files and libraries needed
+ for compiling applications which use cracklib.
+ 
++%package dicts
++Summary: The standard CrackLib dictionaries
++Requires: %{name} = %{version}-%{release}
++
++%description dicts
++The cracklib-dicts package includes the CrackLib dictionaries.
++CrackLib will need to use the dictionary appropriate to your system,
++which is normally put in /usr/share/dict/words. Cracklib-dicts also
++contains the utilities necessary for the creation of new dictionaries.
++
++If you are installing CrackLib, you should also install cracklib-dicts.
++
+ %package_help
+ 
+ %if %{with python2}
+@@ -168,16 +180,18 @@ make test
+ %{_sbindir}/mkdict
+ %{_sbindir}/packer
+ %{_libdir}/libcrack.so.*
+-%{_libdir}/cracklib_dict.*
+ %dir %{_datadir}/cracklib
+-%{_datadir}/cracklib/pw_dict.*
+-%{_datadir}/cracklib/cracklib-small.*
+ %{_datadir}/cracklib/cracklib.magic
+ 
+ %files devel
+ %{_includedir}/*
+ %{_libdir}/libcrack.so
+ 
++%files dicts
++%{_libdir}/cracklib_dict.*
++%{_datadir}/cracklib/pw_dict.*
++%{_datadir}/cracklib/cracklib-small.*
++
+ %files help
+ %doc README README-WORDS NEWS
+ 
+-- 
+2.30.0.windows.2
+

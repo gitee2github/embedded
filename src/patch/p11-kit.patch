@@ -1,0 +1,86 @@
+From 963421c4923caaf5bf2890a7e818aa45611c3d95 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 07:03:26 +0000
+Subject: [PATCH] fix: extract some files to new added sub-package
+ server/trust-tools, and remove main package's depends on update-alternatives.
+
+---
+ p11-kit.spec | 31 +++++++++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 6 deletions(-)
+
+diff --git a/p11-kit.spec b/p11-kit.spec
+index 6062a7f..8cb6e32 100644
+--- a/p11-kit.spec
++++ b/p11-kit.spec
+@@ -34,16 +34,31 @@ Requires:       %{name} = %{version}-%{release}
+ %description devel
+ Provides header and libraries files for applications use %{name} to develop.
+ 
++%package server
++Summary:        Server and client commands for %{name}
++Requires:       %{name} = %{version}-%{release}
++
++%description server
++The %{name}-server package contains command line tools that enable to
++export PKCS#11 modules through a Unix domain socket. Note that this 
++feature is still experimental.
++
+ %package trust
+ Summary:        Trust policy module of %{name}
+ Requires:       %{name} = %{version}-%{release}
+-Requires(post): %{_sbindir}/update-alternatives
+-Requires(postun): %{_sbindir}/update-alternatives
+ Conflicts:      nss < 3.14.3-9
+ 
+ %description trust
+ This package contains PKCS#11 trust policy module.
+ 
++%package trust-tools
++Summary:        Tools for trust policy module of %{name}
++Requires:       %{name} = %{version}-%{release}
++Conflicts:      nss < 3.14.3-9
++
++%description trust-tools
++This package contains PKCS#11 tools for trust policy module.
++
+ %package help
+ Summary:        Help infomation of %{name}
+ Requires:       %{name} = %{version}-%{release}
+@@ -96,13 +111,15 @@ fi
+ %{_bindir}/p11-kit
+ %{_libdir}/libp11-kit.so.*
+ %{_libdir}/p11-kit-proxy.so
+-%{_libdir}/pkcs11/p11-kit-client.so
+ %{_libexecdir}/p11-kit/p11-kit-remote
+-%{_libexecdir}/p11-kit/p11-kit-server
++%{_datadir}/bash-completion/completions/p11-kit
++
++%files server
+ %{_userunitdir}/p11-kit-client.service
+ %{_userunitdir}/p11-kit-server.service
+ %{_userunitdir}/p11-kit-server.socket
+-%{_datadir}/bash-completion/completions/p11-kit
++%{_libdir}/pkcs11/p11-kit-client.so
++%{_libexecdir}/p11-kit/p11-kit-server
+ 
+ %files help
+ %doc AUTHORS NEWS README
+@@ -119,12 +136,14 @@ fi
+ %{_libdir}/pkgconfig/p11-kit-1.pc
+ 
+ %files trust
+-%{_bindir}/trust
+ %dir %{_libdir}/pkcs11
+ %ghost %{_libdir}/libnssckbi.so
+ %{_libdir}/pkcs11/p11-kit-trust.so
+ %{_datadir}/p11-kit/modules/p11-kit-trust.module
+ %{_libexecdir}/p11-kit/trust-extract-compat
++
++%files trust-tools
++%{_bindir}/trust
+ %{_datadir}/bash-completion/completions/trust
+ 
+ %changelog
+-- 
+2.23.0
+

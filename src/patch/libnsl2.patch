@@ -1,0 +1,32 @@
+From bedcc019a47bedfd358964c47f8377f046f95b6f Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:19:32 +0800
+Subject: [PATCH] delete low version so
+
+---
+ libnsl2.spec | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/libnsl2.spec b/libnsl2.spec
+index d2c3a40..1788dd1 100644
+--- a/libnsl2.spec
++++ b/libnsl2.spec
+@@ -47,7 +47,6 @@ make install DESTDIR=%{buildroot}
+ 
+ rm -f %{buildroot}/%{_libdir}/libnsl.a || :
+ rm -f  %{buildroot}/%{_libdir}/libnsl.la || :
+-cp -a %{_libdir}/libnsl.so.2.0.0 %{buildroot}/%{_libdir}/
+ 
+ %post
+ /sbin/ldconfig
+@@ -57,7 +56,6 @@ cp -a %{_libdir}/libnsl.so.2.0.0 %{buildroot}/%{_libdir}/
+ 
+ %files
+ %{_exec_prefix}/%{_lib}/libnsl.so.2
+-%{_exec_prefix}/%{_lib}/libnsl.so.2.0.0
+ %{_exec_prefix}/%{_lib}/libnsl.so.2.0.1
+ 
+ %license COPYING
+-- 
+2.30.0.windows.2
+

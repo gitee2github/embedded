@@ -1,0 +1,34 @@
+From 8fa037937d5cf527e7f924ad59630fc5c0251c59 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 15:38:19 +0800
+Subject: [PATCH] split some sbin
+
+---
+ cyrus-sasl.spec | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cyrus-sasl.spec b/cyrus-sasl.spec
+index 10be36e..5c30032 100644
+--- a/cyrus-sasl.spec
++++ b/cyrus-sasl.spec
+@@ -215,6 +215,8 @@ getent passwd %{username} >/dev/null || useradd -r -g %{username} -d %{homedir}
+ %{_sbindir}/pluginviewer
+ %{_sbindir}/saslauthd
+ %{_sbindir}/testsaslauthd
++%{_sbindir}/saslpasswd2
++%{_sbindir}/sasldblistusers2
+ %dir %{_libdir}/sasl2/
+ %{_libdir}/sasl2/*plain*.so*
+ %{_libdir}/sasl2/*login*.so*
+@@ -238,8 +240,6 @@ getent passwd %{username} >/dev/null || useradd -r -g %{username} -d %{homedir}
+ %dir %{_libdir}/sasl2/
+ %{_libdir}/sasl2/*anonymous*.so*
+ %{_libdir}/sasl2/*sasldb*.so*
+-%{_sbindir}/saslpasswd2
+-%{_sbindir}/sasldblistusers2
+ 
+ %files devel
+ %defattr(-,root,root)
+-- 
+2.30.0.windows.2
+

@@ -1,0 +1,83 @@
+From 11b473c462ffcfd1808dccd4d4360edac7c24e6b Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <529076828@qq.com>
+Date: Tue, 11 May 2021 14:22:51 +0800
+Subject: [PATCH] fix: extrace some bin files to new added smime/utils
+ sub-package.
+
+---
+ gnupg2.spec | 35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
+
+diff --git a/gnupg2.spec b/gnupg2.spec
+index a2acb7f..f6895d5 100644
+--- a/gnupg2.spec
++++ b/gnupg2.spec
+@@ -36,11 +36,9 @@ Recommends: gnupg2-smime
+ Provides: gpg = %{version}-%{release}
+ Provides: gnupg = %{version}-%{release}
+ Provides: dirmngr = %{version}-%{release}
+-Provides: gnupg2-smime
+ 
+ Obsoletes: gnupg <= 1.4.24
+ Obsoletes: dirmngr < 1.2.0-1
+-Obsoletes: gnupg2-smime
+ 
+ %description
+ GnuPG is a complete and free implementation of the OpenPGP standard
+@@ -52,6 +50,22 @@ directories.
+ GnuPG 2.0 adds support for smart cards and S/MIME encryption and
+ signing to the base GnuPG package.
+ 
++%package smime
++Summary: CMS encryption and signing tool and smart card support for GnuPG
++Requires: %{name} = %{version}-%{release}
++
++%description smime
++GnuPG is GNU's tool for secure communication and data storage. This
++package adds support for smart cards and S/MIME encryption and signing
++to the base GnuPG package
++
++%package utils
++Summary: Tools for GnuPG
++Requires: %{name} = %{version}-%{release}
++
++%description utils
++Tools for GnuPG
++
+ %package_help
+ 
+ %prep
+@@ -95,6 +109,17 @@ make check
+ %doc README AUTHORS
+ %dir %{_sysconfdir}/gnupg
+ %ghost %config(noreplace) %{_sysconfdir}/gnupg/gpgconf.conf
++%{_bindir}/gpg
++%{_bindir}/gpg2
++
++%files smime
++%defattr(-,root,root)
++%{_bindir}/gpgscm
++%{_bindir}/gpgsm
++%{_bindir}/kbxutil
++
++%files utils
++%defattr(-,root,root)
+ %{_bindir}/gpg*
+ %{_bindir}/g13
+ %{_bindir}/dirmngr*
+@@ -102,7 +127,11 @@ make check
+ %{_bindir}/kbxutil
+ %{_sbindir}/*
+ %{_libexecdir}/*
+-
++%exclude %{_bindir}/gpgscm
++%exclude %{_bindir}/gpgsm
++%exclude %{_bindir}/kbxutil
++%exclude %{_bindir}/gpg
++%exclude %{_bindir}/gpg2
+ 
+ %files help
+ %defattr(-,root,root)
+-- 
+2.23.0
+

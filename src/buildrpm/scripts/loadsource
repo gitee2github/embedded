@@ -1,0 +1,131 @@
+#!/bin/bash
+set -e
+
+SCRIPT_DIR=$(realpath $(dirname "$0"))
+CURRENT_DIR=$(realpath $(pwd))
+
+# user config's default config
+WORKDIR=$CURRENT_DIR
+OPER="download"
+CONFIG_FILE=""
+ALLSRC_LIST=""
+
+source $SCRIPT_DIR/common.sh
+
+function source_download()
+{
+    local configfile=$(realpath $1)
+    local destdir=$(realpath $2)
+
+    local urllist=$(xmllint --xpath '/packages/package[enabled=1]/url' $configfile | sed -n "s@<url>\([^<]\+\)</url>@\1 @pg" 2>/dev/null)
+    local branch=$(xmllint --xpath '/packages/package[enabled=1]/branch' $configfile | sed -n "s@<branch>\([^<]\+\)</branch>@\1 @pg" 2>/dev/null)
+    local maxcnt=$(xmllint --xpath '/packages/package[enabled=1]/enabled' $configfile | sed -n "s@<enabled>\([^<]\+\)</enabled>@\1 @pg" 2>/dev/null | wc -w)
+
+    pushd $destdir
+        for cnt in $(seq 1 ${maxcnt})
+        do
+            local url=$(echo $urllist | cut -d ' ' -f $cnt)
+            local br=$(echo $branch | cut -d ' ' -f $cnt)
+            log_info "downloading [$url]..."
+            git clone $url -b $br 2>/dev/null || log_info "this git repo exist, no need download again"
+        done
+    popd
+}
+
+function source_patchspec()
+{
+    local conf=$(realpath $1)
+    local destdir=$(realpath $2)
+
+    local allpatch=$(xmllint --xpath '/packages/package[enabled=1]/patch' $conf | sed -n "s@<patch>\([^<]\+\)</patch>@\1\n@pg" 2>/dev/null)
+    local confdir=$(dirname $conf);
+
+    pushd $destdir
+        for ldir in $(ls $destdir)
+        do
+            local rlpath=$(echo "$allpatch" | grep $ldir\.patch)
+            [[ ! -n $rlpath ]] && continue
+            pushd $ldir > /dev/null
+            {
+                local pdir=$(realpath $confdir/$rlpath)
+                [[ x"$(git status -s | cut -c 2)" = x ]] && git apply $pdir && log_info "patch [$pdir] to [$ldir]"
+            }
+            popd > /dev/null
+        done
+    popd
+}
+
+function sourcedir_list()
+{
+    local conf=$(realpath $1)
+    local srcdir=$(realpath $2)
+    local destfile=$(realpath $3)
+
+    local allname=$(xmllint --xpath '/packages/package[enabled=1]/name' $conf | sed -n "s@<name>\([^<]\+\)</name>@\1\n@pg" 2>/dev/null)
+
+    log_info "list all source path to [$destfile]..."
+
+    keylist_init $destfile
+    pushd $srcdir > /dev/null
+        for ldir in $(ls $srcdir)
+        do
+            local srcname=$(echo "$allname" | grep "${ldir}$")
+            [[ -n $srcname ]] && keylist_add $destfile $srcname $(realpath $srcdir/$ldir)
+        done
+    popd > /dev/null
+
+    log_info "list all source path to [$destfile] done"
+}
+
+function usage()
+{
+    log_info "Usage: ./$(basename $0) -c [config file] -d [work dir] -p -l [source path list file]"
+}
+
+function param_parse()
+{
+    while getopts "c:d:pl:" opt
+    do
+        case "$opt" in
+            c)
+            CONFIG_FILE="$OPTARG";;
+            d)
+            WORKDIR="$OPTARG";;
+            p)
+            OPER="patch";;
+            l)
+            ALLSRC_LIST="$OPTARG";;
+            ?)
+            log_error "unknown parameters" && usage && return 1;;
+        esac
+    done
+
+    [[ ! -n $CONFIG_FILE ]] && log_error "empty parameter, -c" && usage && return 1
+    [[ ! -n $WORKDIR ]] && log_error "empty parameter, -d" && usage && return 1
+
+    CONFIG_FILE=$(realpath $CONFIG_FILE)
+    [[ ! -f $CONFIG_FILE ]] && log_error "config file not exist" && usage && return 1
+
+    WORKDIR=$(realpath $WORKDIR)
+    [[ ! -d $WORKDIR ]] && log_error "work dir not exist" && usage && return 1
+
+    if [[ -n $ALLSRC_LIST ]]; then
+        ALLSRC_LIST=$(realpath $ALLSRC_LIST)
+        [[ ! -d $(dirname $ALLSRC_LIST) ]] && log_error "source path list file's directory not exist" usage && return 1
+    fi
+
+    return 0
+}
+
+function main()
+{
+    param_parse $@
+    source_download $CONFIG_FILE $WORKDIR
+    [[ $OPER = patch ]] && source_patchspec $CONFIG_FILE $WORKDIR
+    [[ -n $ALLSRC_LIST ]] && sourcedir_list $CONFIG_FILE $WORKDIR $ALLSRC_LIST
+
+    return 0
+}
+
+main $@
+

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="6.2" name="openEuler-embedded">
+    <description type="system">
+        <author>openeuler-embedded-sig</author>
+        <contact>https://gitee.com/openeuler/embedded</contact>
+        <specification>
+            openEuler-embedded OS
+        </specification>
+    </description>
+    <profiles>
+        <profile name="live" description="Live image of openEuler-embedded"/>
+        <profile name="virtual" description="Virtual image of openEuler-embedded"/>
+        <profile name="disk" description="OEM image of openEuler-embedded"/>
+        <profile name="docker" description="Docker image of openEuler-embedded"/>
+    </profiles>
+    <preferences>
+        <version>1.0.0</version>
+        <packagemanager>dnf</packagemanager>
+        <locale>en_US</locale>
+        <keytable>us.map.gz</keytable>
+        <timezone>Asia/Beijing</timezone>
+        <rpm-force>true</rpm-force>
+        <rpm-check-signatures>false</rpm-check-signatures>
+        <hwclock>utc</hwclock>
+    </preferences>
+    <preferences profiles="live">
+        <type image="iso" flags="overlay" firmware="uefi" hybridpersistent_filesystem="ext4" hybridpersistent="true" kernelcmdline="edd=off,console=ttyS0">
+            <bootloader name="grub2" console="serial"/>
+        </type>
+    </preferences>
+    <preferences profiles="virtual">
+        <type image="oem" filesystem="ext4"  primary="true"  firmware="uefi" kernelcmdline="edd=off" format="qcow2" initrd_system="dracut">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+        </type>
+    </preferences>
+    <preferences profiles="disk">
+        <type image="oem" filesystem="ext4" installiso="true" installboot="install" firmware="uefi" kernelcmdline="edd=off" initrd_system="dracut">
+            <bootloader name="grub2" console="serial" timeout="10"/>
+            <oemconfig>
+                <oem-systemsize>2048</oem-systemsize>
+                <oem-unattended>true</oem-unattended>
+                <oem-swap>true</oem-swap>
+                <oem-swapsize>200</oem-swapsize>
+                <oem-multipath-scan>false</oem-multipath-scan>
+            </oemconfig>
+        </type>
+    </preferences>
+    <preferences profiles="docker">
+        <type image="docker" container="openeuler-embedded">
+            <machine>
+                <vmnic interface="eth0" mode="veth"/>
+            </machine>
+        </type>
+    </preferences>
+    <users>
+        <user pwdformat="plain" password="template" shell="/bin/bash" name="root" home="/root"/>
+    </users>
+    <packages type="image" patternType="onlyRequired">
+        <package name="busybox"/>
+        <package name="bash"/>
+        <package name="glibc"/>
+        <package name="pcre2"/>
+        <package name="libselinux"/>
+        <package name="systemd"/>
+        <package name="dbus"/>
+        <package name="rpm"/>
+        <package name="dnf"/>
+    </packages>
+    <packages type="image" patternType="onlyRequired" profiles="live,virtual,disk">
+        <package name="gdisk"/>
+        <package name="grub2"/>
+        <package name="kernel"/>
+        <package name="kiwi-other"/>
+        <package name="rootfiles"/>
+    </packages>
+    <packages type="image" profiles="live">
+        <package name="dracut-kiwi-live"/>
+    </packages>
+    <packages type="image" profiles="virtual,disk">
+       <package name="dracut-kiwi-oem-repart"/>
+       <package name="dracut-kiwi-oem-dump"/>
+    </packages>
+    <!--dracut-->
+    <packages type="bootstrap" patternType="onlyRequired" profiles="live,virtual,disk">
+        <package name="device-mapper-libs"/>
+        <package name="rng-tools"/>
+        <package name="openssh-clients"/>
+        <package name="multipath-tools"/>
+        <package name="keyutils"/>
+        <package name="fcoe-utils"/>
+        <package name="mksh"/>
+        <package name="cifs-utils"/>
+        <package name="open-iscsi"/>
+        <package name="biosdevname"/>
+        <package name="dmraid"/>
+        <package name="kbd"/>
+    </packages>
+    <packages type="bootstrap" patternType="onlyRequired" profiles="live,virtual,disk">
+        <package name="syslinux"/>
+        <package name="basesystem"/>
+        <package name="grub2-efi-x64-modules"/>
+        <package name="grub2-efi-x64"/>
+        <package name="shim"/>
+        <package name="libdb-utils"/>
+    </packages>
+    <packages type="bootstrap" patternType="onlyRequired">
+        <package name="filesystem"/>
+    </packages>
+    <!--delete-->
+    <packages type="delete" profiles="docker">
+        <package name="coreutils"/>
+        <package name="util-linux"/>
+        <package name="ncurses"/>
+        <package name="grep"/>
+        <package name="findutils"/>
+        <package name="gzip"/>
+        <package name="sed"/>
+        <package name="which"/>
+        <package name="xz"/>
+        <package name="info"/>
+        <package name="publicsuffix-list"/>
+        <package name="fuse"/>
+        <package name="gawk"/>
+        <package name="audit"/>
+        <package name="libutempter"/>
+    </packages>
+</image>
+

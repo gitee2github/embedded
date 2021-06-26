@@ -1,0 +1,24 @@
+From 7d79368669d4d9392bd1c288e40610b37367ad45 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 15:57:35 +0800
+Subject: [PATCH] delete low version so
+
+---
+ ima-evm-utils.spec | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/ima-evm-utils.spec b/ima-evm-utils.spec
+index 0535018..210b269 100644
+--- a/ima-evm-utils.spec
++++ b/ima-evm-utils.spec
+@@ -45,7 +45,6 @@ make %{?_smp_mflags}
+ %install
+ rm -rf %{buildroot}
+ %make_install
+-cp %{_libdir}/libimaevm.so.1* %{buildroot}/%{_libdir}
+ 
+ %check
+ make check
+-- 
+2.30.0.windows.2
+

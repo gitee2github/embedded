@@ -1,0 +1,86 @@
+#!/bin/bash
+set -e
+
+SCRIPT_DIR=$(realpath $(dirname "$0"))
+CURRENT_DIR=$(realpath $(pwd))
+
+SDIR=$CURRENT_DIR
+SPEC=""
+WORKDIR=$CURRENT_DIR/abuild
+SOURCES_DIR=$WORKDIR/rpmbuild/SOURCES
+ARCH=$(uname -m)
+REPO_FILE=""
+
+PATH=$SCRIPT_DIR:$PATH
+source $SCRIPT_DIR/common.sh
+
+function usage()
+{
+    log_info "Usage: ./$(basename $0) -a [aarch64|x86_64] -r [repo] -s [source dir] -d [work dir]"
+}
+
+function param_parse()
+{
+    while getopts "a:r:s:d:" opt
+    do
+        case "$opt" in
+            a)
+            ARCH="$OPTARG";;
+            r)
+            REPO_FILE="$OPTARG";;
+            s)
+            SDIR="$OPTARG";;
+            d)
+            WORKDIR="$OPTARG";;
+            ?)
+            log_error "unknown parameters" && usage && return 1;;
+        esac
+    done
+
+    [[ ! -n $REPO_FILE ]] && log_error "empty parameter, -r" && usage && return 1
+    [[ ! -n $WORKDIR ]] && log_error "empty parameter, -d" && usage && return 1
+
+    ( [[ $ARCH != "aarch64" ]] && [[ $ARCH != "x86_64" ]] ) && usage && return 1
+
+    REPO_FILE=$(realpath $REPO_FILE)
+    [[ ! -f $REPO_FILE ]] && log_error "repo file not exit" && usage && return 1
+
+    WORKDIR=$(realpath $WORKDIR)
+    [[ ! -d $WORKDIR ]] && log_error "work dir not exist" && usage && return 1
+    SOURCES_DIR=$WORKDIR/rpmbuild/SOURCES
+
+    SDIR=$(realpath $SDIR)
+    [[ ! -d $SDIR ]] && log_error "source dir not exist" && usage && return 1
+    SPEC="$(basename $(ls $SDIR/ | grep \.spec$))"
+
+    return 0
+}
+
+function directory_init()
+{
+    local clearflag=$1
+
+    [[ $clearflag == 1 ]] && [[ -d $WORKDIR ]] && rm -rf $WORKDIR
+    mkdir -p $WORKDIR
+
+    [[ $clearflag == 1 ]] && [[ -d $SOURCES_DIR ]] && rm -rf $SOURCES_DIR
+    mkdir -p $SOURCES_DIR
+}
+
+function specbuild()
+{
+    param_parse $@
+    directory_init 0
+    # change home
+    HOME=$WORKDIR
+
+    # copy source to abuild
+    [[ $(realpath $SDIR) != $(realpath $SOURCES_DIR) ]] && cp $SDIR/* $SOURCES_DIR || log_info "some file not copy"
+    # install deps
+    resolvedeps install -a $ARCH -r $REPO_FILE -d / $SOURCES_DIR/$SPEC
+    # build
+    rpmbuild --clean --define '_srcdefattr (-,root,root)' --nosignature --nocheck -ba $SOURCES_DIR/$SPEC
+}
+
+specbuild $@
+

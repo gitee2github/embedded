@@ -1,0 +1,25 @@
+From 6e5c47e604841d5893ed415e207d28730b854abf Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Tue, 23 Mar 2021 11:38:35 +0800
+Subject: [PATCH] delete needless requires
+
+---
+ openssl.spec | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/openssl.spec b/openssl.spec
+index a22a40c..29ac902 100644
+--- a/openssl.spec
++++ b/openssl.spec
+@@ -22,7 +22,7 @@ Patch11:     CVE-2021-23841.patch
+ 
+ BuildRequires: gcc make lksctp-tools-devel coreutils util-linux zlib-devel
+ 
+-Requires:    coreutils perl %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
++Requires:    %{name}-libs%{?_isa} = %{epoch}:%{version}-%{release}
+ Obsoletes:   openssl-perl < %{epoch}:%{version}-%{release}
+ Provides:    openssl-perl = %{epoch}:%{version}-%{release}
+ Provides:    openssl-perl%{_isa} = %{epoch}:%{version}-%{release}
+-- 
+2.30.0.windows.2
+

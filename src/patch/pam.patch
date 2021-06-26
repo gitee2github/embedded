@@ -1,0 +1,25 @@
+From 400038c7bd113c9e47cfc03457d6b8940e958fa2 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Sat, 20 Mar 2021 16:42:02 +0800
+Subject: [PATCH] delete needless requires
+
+---
+ pam.spec | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pam.spec b/pam.spec
+index 1588e5b..3787fd3 100644
+--- a/pam.spec
++++ b/pam.spec
+@@ -31,7 +31,7 @@ BuildRequires: perl-interpreter pkgconfig gettext-devel libtirpc-devel libnsl2-d
+ BuildRequires: audit-libs-devel libselinux-devel libdb-devel
+ BuildRequires: linuxdoc-tools elinks libxslt docbook-style-xsl docbook-dtds
+ 
+-Requires: cracklib libpwquality coreutils glibc audit libselinux
++Requires: cracklib libpwquality glibc libselinux
+ 
+ %description
+ PAM (Pluggable Authentication Modules) is a system of libraries that
+-- 
+2.30.0.windows.2
+

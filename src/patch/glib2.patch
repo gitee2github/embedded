@@ -1,0 +1,82 @@
+From 927cde81a8778933bfcaf9971dca6d3875bd3f87 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Thu, 11 Mar 2021 03:00:02 +0000
+Subject: [PATCH] =?UTF-8?q?fix:=20=E6=8B=86=E5=87=BAdesktop/fam/compat?=
+ =?UTF-8?q?=E5=8C=85=E3=80=82=E5=8F=AF=E5=8E=BB=E9=99=A4=E5=AF=B9gamin?=
+ =?UTF-8?q?=E7=9A=84=E4=BE=9D=E8=B5=96?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ glib2.spec | 34 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
+
+diff --git a/glib2.spec b/glib2.spec
+index 728a1c1..4276280 100644
+--- a/glib2.spec
++++ b/glib2.spec
+@@ -28,6 +28,27 @@ written in C and developed mainly by GNOME. GLib's code was separated
+ from GTK, so it can be used by software other than GNOME and has been
+ developed in parallel ever since.
+ 
++%package        desktop
++Summary:        desktop utils for the GLib library
++Requires:       %{name} = %{version}-%{release}
++
++%description    desktop
++Desktop utils for the GLib library.
++
++%package        fam
++Summary:        FAM monitoring module for GIO
++Requires:       %{name} = %{version}-%{release}
++
++%description    fam
++The glib2-fam package contains the FAM (File Alteration Monitor) module for GIO.
++
++%package        compat
++Summary:        Forward compatibility library for Glib
++Requires:       %{name} = %{version}-%{release}
++
++%description    compat
++Forward compatibility library for Glib
++
+ %package        devel
+ Summary:        Development and test files for the GLib library
+ Requires:       %{name} = %{version}-%{release}
+@@ -90,7 +111,8 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+ %doc AUTHORS NEWS README
+ %license COPYING
+ %{_libdir}/*.so.*
+-%{_libdir}/gio/modules/libgiofam.so
++%exclude %{_libdir}/libgthread-*.so.*
++
+ %dir %{_libdir}/gio
+ %ghost %{_libdir}/gio/modules/giomodule.cache
+ 
+@@ -102,13 +124,21 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+ %{_datadir}/bash-completion/completions/gsettings
+ 
+ %{_bindir}/gio
+-%{_bindir}/gio-launch-desktop
+ %{_bindir}/gio-querymodules*
+ %{_bindir}/glib-compile-schemas
+ %{_bindir}/gsettings
+ %{_bindir}/gdbus
+ %{_bindir}/gapplication
+ 
++%files desktop
++%{_bindir}/gio-launch-desktop
++
++%files fam
++%{_libdir}/gio/modules/libgiofam.so
++
++%files compat
++%{_libdir}/libgthread-*.so.*
++
+ %files devel
+ %{_libdir}/lib*.so
+ %{_libdir}/glib-2.0
+-- 
+2.23.0
+

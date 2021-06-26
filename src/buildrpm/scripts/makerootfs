@@ -1,0 +1,146 @@
+#!/bin/sh
+set -e
+
+SCRIPT_DIR=$(realpath $(dirname "$0"))
+CURRENT_DIR=$(realpath $(pwd))
+
+ROOTFS_DIR=$CURRENT_DIR/abuild
+OPER=""
+ARCH=$(uname -m)
+REPO_FILE=""
+IMG_NAME="baseroot"
+SCRIPT_AFTER=""
+ALLPACK="dnf dnf-plugins-core rpm-build gcc"
+PATH=$SCRIPT_DIR:$PATH
+source $SCRIPT_DIR/common.sh
+
+function baseroot_exec_after()
+{
+    local aftersh=$SCRIPT_AFTER
+    local rootdir=$ROOTFS_DIR
+
+    ( [[ ! -n $aftersh ]] || [[ ! -f $aftersh ]] ) && log_info "no [after script]" && return 0
+    cp $SCRIPT_AFTER $rootdir/tmp/cmd_after.sh
+
+    log_info "exec [after script] in chroot environment..."
+    chroot $rootdir sh -xe /tmp/cmd_after.sh || log_error "[after script] exec occur some error ret=$?"
+    rm -rf $rootdir/tmp/cmd_after.sh
+    log_info "exec [after script] in chroot environment done"
+
+    return 0
+}
+
+function baseroot_create()
+{
+    local repofile=$REPO_FILE
+    local destdir=$ROOTFS_DIR
+    local rpmconf=$FILTER_RPM
+    local fileconf=$FILTER_FILE
+
+    log_info "install packs[$ALLPACK] and its dependency"
+    resolvedeps install -a $ARCH -r $repofile -d $destdir $ALLPACK
+
+    # copy build shell to base root
+    local shelldir="$destdir/usr/bin/"
+    cp $SCRIPT_DIR/* $shelldir
+
+    baseroot_exec_after
+}
+
+function basedockerimg_create()
+{
+    local rootdir=$ROOTFS_DIR
+    local imgname=$IMG_NAME
+    local tmpdir=$ROOTFS_DIR
+    
+    echo "FROM scratch" >$tmpdir/Dockerfile
+    echo "COPY ./ /" >>$tmpdir/Dockerfile
+    docker build -t $imgname -f $tmpdir/Dockerfile $rootdir
+}
+
+function usage()
+{
+    cat <<EOF
+Usage:
+$(basename $0) [dockerimage] -a [aarch64|x86_64] -r [repo] -d [work dir] -t [docker image name] -s [after script]
+EOF
+}
+
+function param_parse()
+{
+    [[ $1 == "dockerimage" ]] && OPER="dockerimage" && shift
+    local optcnt=0
+    while getopts "a:r:d:t:s:" opt
+    do
+        case "$opt" in
+            a)
+            ARCH="$OPTARG"
+            local optcnt=$(($optcnt + 1));;
+            r)
+            REPO_FILE="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            d)
+            ROOTFS_DIR="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            t)
+            IMG_NAME="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            s)
+            SCRIPT_AFTER="$OPTARG"
+            local optcnt=$(($optcnt + 1))
+            ;;
+            ?)
+            log_error "unknown parameters" && usage && return 1;;
+        esac
+    done
+    shift $(($optcnt * 2))
+    [[ -n $@ ]] && ALLPACK=$@
+
+    [[ ! -n $ARCH ]] && log_error "empty parameter, -a" && usage && return 1
+    [[ ! -n $REPO_FILE ]] && log_error "empty parameter, -r" && usage && return 1
+    [[ ! -n $ROOTFS_DIR ]] && log_error "empty parameter, -d" && usage && return 1
+    [[ x$OPER != x ]] && [[ ! -n $IMG_NAME ]] && log_error "empty parameter, -t" && usage && return 1
+
+    ( [[ $ARCH != "aarch64" ]] && [[ $ARCH != "x86_64" ]] ) && usage && return 1
+
+    REPO_FILE=$(realpath $REPO_FILE)
+    [[ ! -f $REPO_FILE ]] && log_error "repo file not exit" && usage && return 1
+
+    ROOTFS_DIR=$(realpath $ROOTFS_DIR)
+    [[ ! -d $ROOTFS_DIR ]] && log_error "work dir not exist" && usage && return 1
+
+    if [[ -n $SCRIPT_AFTER ]]; then
+        SCRIPT_AFTER=$(realpath $SCRIPT_AFTER)
+        [[ ! -f $SCRIPT_AFTER ]] && log_error "the specific [after script] not exist" && usage && return 1
+    fi
+
+    return 0
+}
+
+function directory_init()
+{
+    mkdir -p $ROOTFS_DIR
+}
+
+function main()
+{
+    param_parse $@
+    directory_init 1
+
+    baseroot_create
+    log_info "root file system create in dir [$ROOTFS_DIR], size [$(du -sh $ROOTFS_DIR)]"
+    if [[ x$OPER = x"dockerimage" ]]; then
+        basedockerimg_create
+        log_info "docker images create with name [$IMG_NAME]"
+    fi
+
+    return 0
+}
+
+main $@
+
+
+

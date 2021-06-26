@@ -1,0 +1,48 @@
+From 70f6c1ac6e24062c4008f46b274f0d970458a643 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 06:33:29 +0000
+Subject: [PATCH] fix: extract xtable files to new added sub-package extension,
+ and remove compatible dynamic library.
+
+---
+ iptables.spec | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/iptables.spec b/iptables.spec
+index aff4d10..a011739 100644
+--- a/iptables.spec
++++ b/iptables.spec
+@@ -45,6 +45,12 @@ Summary:          iptables libraries
+ %description      libs
+ iptables libraries.
+ 
++%package          extension
++Summary:          iptables extension function libraries
++
++%description      extension
++Iptables extension function libraries
++
+ %package          devel
+ Summary:          header files for iproute
+ Requires:         %{name} = %{version}-%{release} pkgconfig
+@@ -136,7 +142,6 @@ touch %{buildroot}%{_mandir}/man8/arptables-save.8
+ touch %{buildroot}%{_mandir}/man8/arptables-restore.8
+ touch %{buildroot}%{_mandir}/man8/ebtables.8
+ 
+-cp -a %{_libdir}/libip*tc.so.0.* %{buildroot}%{_libdir}
+ %ldconfig_scriptlets
+ 
+ %post
+@@ -257,6 +262,9 @@ fi
+ %{_libdir}/libip*tc.so.*
+ %{_libdir}/libxtables.so.*
+ %{_libdir}/libxtables.so.12*
++
++%files            extension
++%defattr(-,root,root)
+ %dir %{_libdir}/xtables
+ %{_libdir}/xtables/libipt*
+ %{_libdir}/xtables/libip6t*
+-- 
+2.23.0
+

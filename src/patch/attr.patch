@@ -1,0 +1,44 @@
+From 67480113fbcf3e2231c5c3712a646a91c25b87fc Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 09:06:58 +0000
+Subject: [PATCH] fix: extract tools to new added sub-package utils
+
+---
+ attr.spec | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/attr.spec b/attr.spec
+index 55ee423..1cee886 100644
+--- a/attr.spec
++++ b/attr.spec
+@@ -25,6 +25,13 @@ objects, in particular getfattr(1) and setfattr(1).
+ An attr(1) command is also provided which is largely compatible
+ with the SGI IRIX tool of the same name.
+ 
++%package utils
++Summary: tool files for attr lib
++Requires: %{name} = %{version}-%{release}
++
++%description utils
++Tool files for attr lib
++
+ %package -n libattr-devel
+ License: LGPLv2+
+ Summary: Header files for libattr
+@@ -77,10 +84,12 @@ make %{?_smp_mflags} check
+ %files -f %{name}.lang
+ %doc doc/CHANGES
+ %license doc/COPYING*
+-%{_bindir}/*
+ %{_libdir}/libattr.so.*
+ %config(noreplace) %{_sysconfdir}/xattr.conf
+ 
++%files utils
++%{_bindir}/*
++
+ %files -n libattr-devel
+ %{_libdir}/libattr.so
+ %{_libdir}/pkgconfig/*.pc
+-- 
+2.23.0
+

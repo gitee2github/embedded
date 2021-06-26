@@ -1,0 +1,35 @@
+From cdc870b8f3fe9e66d5f67456b11b3f9d7b866e91 Mon Sep 17 00:00:00 2001
+From: catherine_56 <shenweiling@huawei.com>
+Date: Tue, 23 Mar 2021 10:25:54 +0800
+Subject: [PATCH] delete needless requires
+
+---
+ ca-certificates.spec | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+diff --git a/ca-certificates.spec b/ca-certificates.spec
+index 2ce58d3..7e091ce 100644
+--- a/ca-certificates.spec
++++ b/ca-certificates.spec
+@@ -65,18 +65,6 @@ Source18: README.src
+ 
+ BuildArch: noarch
+ 
+-Requires(post): bash
+-Requires(post): grep
+-Requires(post): sed
+-Requires(post): coreutils
+-Requires: bash
+-Requires: grep
+-Requires: sed
+-Requires(post): p11-kit >= 0.23.10
+-Requires(post): p11-kit-trust >= 0.23.10
+-Requires: p11-kit >= 0.23.10
+-Requires: p11-kit-trust >= 0.23.10
+-
+ BuildRequires: perl-interpreter
+ BuildRequires: python3
+ BuildRequires: openssl
+-- 
+2.30.0.windows.2
+

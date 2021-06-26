@@ -1,0 +1,102 @@
+From a2dc57603ffae559e1d163410fd9982e6144e0e7 Mon Sep 17 00:00:00 2001
+From: yyywwwlll <yaoweili@huawei.com>
+Date: Mon, 22 Mar 2021 03:14:52 +0000
+Subject: [PATCH] split rpm package
+
+---
+ python3.spec | 44 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 27 insertions(+), 17 deletions(-)
+
+diff --git a/python3.spec b/python3.spec
+index 41b10ac..7d8b89e 100644
+--- a/python3.spec
++++ b/python3.spec
+@@ -113,16 +113,11 @@ Provides: python(abi) = %{branchversion}
+ Provides: python%{pyshortver} = %{version}-%{release}
+ Obsoletes: python%{pyshortver}
+ 
+-Requires: python-setuptools-wheel
+-Requires: python-pip-wheel
+ Provides: python3-libs
+ Obsoletes: python3-libs
+ Provides: python3-enum34 = 1.0.4-5
+ Obsoletes: python3-enum34 < 1.0.4-5
+ 
+-Recommends: python3-setuptools
+-Recommends: python3-pip
+-
+ %global __requires_exclude ^/usr/bin/python3
+ 
+ %description
+@@ -160,6 +155,18 @@ Obsoletes: %{name}-tools < %{version}-%{release}
+ This package contains the header files and configuration needed to develop
+ python3 modules.
+ 
++%package libs
++Summary: bin documents for python3
++
++%description libs
++bin documents for python3.
++
++%package test
++Summary: Python test support
++
++%description test
++Python test support
++
+ %package debug
+ Summary: Debug version of the Python runtime
+ 
+@@ -423,11 +430,8 @@ export BEP_GTDLIST="$BEP_GTDLIST_TMP"
+ 
+ %{_bindir}/pydoc*
+ %{_bindir}/python3
+-%{_bindir}/pyvenv
+ 
+ %{_bindir}/python%{branchversion}
+-%{_bindir}/python%{branchversion}m
+-%{_bindir}/pyvenv-%{branchversion}
+ 
+ %dir %{pylibdir}
+ %dir %{dynload_dir}
+@@ -461,15 +465,6 @@ export BEP_GTDLIST="$BEP_GTDLIST_TMP"
+ 
+ %exclude %{pylibdir}/ensurepip/_bundled
+ 
+-%dir %{pylibdir}/test/
+-%dir %{pylibdir}/test/__pycache__/
+-%dir %{pylibdir}/test/support/
+-%dir %{pylibdir}/test/support/__pycache__/
+-%{pylibdir}/test/__init__.py
+-%{pylibdir}/test/__pycache__/__init__%{bytecode_suffixes}
+-%{pylibdir}/test/support/*.py
+-%{pylibdir}/test/support/__pycache__/*%{bytecode_suffixes}
+-
+ %dir %{pylibdir}/concurrent/
+ %dir %{pylibdir}/concurrent/__pycache__/
+ %{pylibdir}/concurrent/*.py
+@@ -704,6 +699,21 @@ export BEP_GTDLIST="$BEP_GTDLIST_TMP"
+ %exclude %{pylibdir}/test/__pycache__/__init__%{bytecode_suffixes}
+ %exclude %{pylibdir}/test/support/
+ 
++%files libs
++%{_bindir}/pyvenv
++%{_bindir}/pyvenv-%{branchversion}
++%{_bindir}/python%{branchversion}m
++
++%files test
++%dir %{pylibdir}/test/
++%dir %{pylibdir}/test/__pycache__/
++%dir %{pylibdir}/test/support/
++%dir %{pylibdir}/test/support/__pycache__/
++%{pylibdir}/test/__init__.py
++%{pylibdir}/test/__pycache__/__init__%{bytecode_suffixes}
++%{pylibdir}/test/support/*.py
++%{pylibdir}/test/support/__pycache__/*%{bytecode_suffixes}
++
+ %files debug
+ %{_bindir}/python3-debug
+ 
+-- 
+2.23.0
+

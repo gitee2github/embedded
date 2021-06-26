@@ -1,0 +1,64 @@
+From ed5f08e54431f7893119c6c8b95e7ac3899b69e6 Mon Sep 17 00:00:00 2001
+From: yyywwwlll <penzaiyao@126.com>
+Date: Mon, 29 Mar 2021 03:54:28 +0000
+Subject: [PATCH] spilt rpm package
+
+---
+ pcre2.spec | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/pcre2.spec b/pcre2.spec
+index f9bc196..ef4e125 100644
+--- a/pcre2.spec
++++ b/pcre2.spec
+@@ -21,7 +21,6 @@ Patch4:     pcre2-10.35-Fix-read-overflow-for-invalid-VERSION-test-with-one-.pat
+ Patch5:     pcre2-10.35-Fix-an-early-fail-optimization-issue-and-a-buffer-ov.patch
+ 
+ BuildRequires:  autoconf libtool automake coreutils gcc make readline-devel
+-Obsoletes:      pcre2-utf16 pcre2-utf32 pcre2-tools
+ Provides:       pcre2-utf16 pcre2-utf32 pcre2-tools
+ Provides:       bundled(sljit)
+ 
+@@ -42,6 +41,24 @@ just provides a POSIX calling interface to PCRE2; the regular expressions
+ themselves still follow Perl syntax and semantics. The POSIX API is restricted,
+ and does not give full access to all of PCRE2's facilities.
+ 
++%package utf16
++Summary:    UTF-16 variant of PCRE2
++
++%description utf16
++This is PCRE2 library working on UTF-16 strings.
++
++%package utf32
++Summary:    UTF-32 variant of PCRE2
++
++%description utf32
++This is PCRE2 library working on UTF-32 strings.
++
++%package tools
++Summary:    Auxiliary utilities for %{name}
++
++%description tools
++Utilities demonstrating PCRE2 capabilities like pcre2grep or pcre2test.
++
+ %package devel
+ Summary:     Development files for %{name}
+ Requires:    %{name} = %{version}-%{release}
+@@ -115,8 +132,14 @@ make check
+ %doc AUTHORS ChangeLog NEWS HACKING README
+ %{_libdir}/libpcre2-8.so.*
+ %{_libdir}/libpcre2-posix.so.*
++
++%files utf16
+ %{_libdir}/libpcre2-16.so.*
++
++%files utf32
+ %{_libdir}/libpcre2-32.so.*
++
++%files tools
+ %{_bindir}/pcre2grep
+ %{_bindir}/pcre2test
+ 
+-- 
+2.23.0
+

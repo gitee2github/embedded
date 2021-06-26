@@ -1,0 +1,51 @@
+From 457b475b7c5e3212dea16d9ff89bbce6f0bd6cc0 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 07:19:29 +0000
+Subject: [PATCH] fix: extract tools to new added sub-package utils.
+
+---
+ gdbm.spec | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/gdbm.spec b/gdbm.spec
+index 03704c1..eb6e9c1 100644
+--- a/gdbm.spec
++++ b/gdbm.spec
+@@ -19,6 +19,15 @@ use extensible hashing and work similar to the standard UNIX dbm.
+ These routines are provided to a programmer needing to create and
+ manipulate a hashed database.
+ 
++%package            utils
++Summary:            util files and bin for gdbm
++Requires:           %{name} = %{epoch}:%{version}-%{release}
++Requires(post):     info
++Requires(preun):    info
++
++%description        utils
++Gdbm-utils contains the tools for using it.
++
+ %package            devel
+ Summary:            Header files and libraries for development
+ Requires:           %{name} = %{epoch}:%{version}-%{release}
+@@ -78,13 +87,15 @@ if [ $1 = 0 ]; then
+ fi
+ 
+ %files -f %{name}.lang
+-%doc NEWS README THANKS AUTHORS NOTE-WARNING
+-%license COPYING
+-%{_bindir}/gdbm*
+ %{_libdir}/libgdbm.so.6*
+ %{_libdir}/libgdbm_compat.so.4*
+ %exclude %{_libdir}/*.la
+ 
++%files utils
++%doc NEWS README THANKS AUTHORS NOTE-WARNING
++%license COPYING
++%{_bindir}/gdbm*
++
+ %files devel
+ %{_libdir}/libgdbm.so
+ %{_libdir}/libgdbm_compat.so
+-- 
+2.23.0
+

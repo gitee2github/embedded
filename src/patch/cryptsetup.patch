@@ -1,0 +1,47 @@
+From 66c0b7a29855070a6d20c5289f590bd7585f6212 Mon Sep 17 00:00:00 2001
+From: yyywwwlll <yaoweili@huawei.com>
+Date: Mon, 22 Mar 2021 03:57:55 +0000
+Subject: [PATCH] split rpm cryptsetup-libs
+
+---
+ cryptsetup.spec | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/cryptsetup.spec b/cryptsetup.spec
+index 170414a..9c649fc 100644
+--- a/cryptsetup.spec
++++ b/cryptsetup.spec
+@@ -34,6 +34,12 @@ Obsoletes: cryptsetup-luks-devel < 1.4.0
+ %description devel
+ This contains dynamic libraries and header files for the developing of cryptsetup.
+ 
++%package   libs
++Summary:   Including bin files for the developing of cryptsetup
++
++%description libs
++This contains bin files for the developing of cryptsetup.
++
+ %package   -n veritysetup
+ Summary:   Utility for setting up disk verification
+ Requires:  %{name} = %{version}-%{release}
+@@ -81,7 +87,6 @@ This contains man files for the using of cryptsetup.
+ %files -f cryptsetup.lang
+ %license COPYING COPYING.LGPL AUTHORS
+ %doc docs/*
+-%{_sbindir}/cryptsetup
+ %{_libdir}/libcryptsetup.so.*
+ %{_tmpfilesdir}/cryptsetup.conf
+ %ghost %dir /run/cryptsetup
+@@ -93,6 +98,9 @@ This contains man files for the using of cryptsetup.
+ %{_includedir}/libcryptsetup.h
+ %{_libdir}/pkgconfig/libcryptsetup.pc
+ 
++%files libs
++%{_sbindir}/cryptsetup
++
+ %files -n veritysetup
+ %{_sbindir}/veritysetup
+ 
+-- 
+2.23.0
+

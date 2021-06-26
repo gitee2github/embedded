@@ -1,0 +1,102 @@
+From d6f36d030d6aa9d642c23edc3baaa9cf3f7bb084 Mon Sep 17 00:00:00 2001
+From: hwzjyggsddu <zhujiayuan@huawei.com>
+Date: Tue, 23 Mar 2021 03:34:57 +0000
+Subject: [PATCH] fix: extract some files to new sub-package dane/c++/utils,
+ and remove depends on p11-kit-trust
+
+---
+ gnutls.spec | 49 +++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 43 insertions(+), 6 deletions(-)
+
+diff --git a/gnutls.spec b/gnutls.spec
+index a2d3650..9d01211 100644
+--- a/gnutls.spec
++++ b/gnutls.spec
+@@ -34,7 +34,7 @@ BuildRequires: unbound-devel unbound-libs
+ BuildRequires: guile22-devel
+ %endif
+ 
+-Requires: crypto-policies, p11-kit-trust, libtasn1, nettle
++Requires: crypto-policies, libtasn1, nettle
+ Recommends: trousers >= 0.3.11.2
+ 
+ Provides: bundled(gnulib) = 20130424
+@@ -70,12 +70,38 @@ This package contains files needed for developing applications with %{name}.
+ %package guile
+ Summary: Guile bindings for the GNUTLS library
+ Requires: %{name}%{?_isa} = %{version}-%{release}
+-Requires: guile
+ 
+ %description guile
+ This package contains Guile bindings for the library.
+ %endif
+ 
++%package utils
++Summary: Command line tools for TLS protocol
++Requires: %{name}%{?_isa} = %{version}-%{release}
++
++%description utils
++This package contains command line TLS client and server and certificate
++manipulation tools.
++
++%package c++
++Summary: The C++ interface to GnuTLS
++Requires: %{name}%{?_isa} = %{version}-%{release}
++
++%description c++
++Application programming interface (API) to access the secure communications
++protocols and technologies around them. It provides a simple C language API
++to access the secure communications protocols as well as APIs to parse and 
++write X.509, PKCS #12, OpenPGP and other required structures.
++
++%if %{with dane}
++%package dane
++Summary: A DANE protocol implementation fo GnuTLS
++Requires: %{name}%{?_isa} = %{version}-%{release}
++
++%description dane
++This package contains library that implements the DANE protocol for verifying
++TLS certificates through DNSSEC.
++%endif
+ 
+ %prep
+ %autosetup -n %{name}-%{version} -p1
+@@ -160,6 +186,13 @@ make check %{?_smp_mflags}
+ %defattr(-,root,root)
+ %doc README.md AUTHORS
+ %license LICENSE doc/COPYING doc/COPYING.LESSER
++%{_libdir}/libgnutls.so.30*
++%if %{with fips}
++%{_libdir}/.libgnutls.so.*.hmac
++%endif
++
++%files utils
++%defattr(-,root,root)
+ %{_bindir}/certtool
+ %{_bindir}/tpmtool
+ %{_bindir}/ocsptool
+@@ -169,13 +202,17 @@ make check %{?_smp_mflags}
+ %{_bindir}/gnutls*
+ %if %{with dane}
+ %{_bindir}/danetool
++%endif
++
++%if %{with dane}
++%files dane
++%defattr(-,root,root)
+ %{_libdir}/libgnutls-dane.so.*
+ %endif
+-%{_libdir}/libgnutls.so.30*
++
++%files c++
++%defattr(-,root,root)
+ %{_libdir}/libgnutlsxx.so.*
+-%if %{with fips}
+-%{_libdir}/.libgnutls.so.*.hmac
+-%endif
+ 
+ %files devel
+ %defattr(-,root,root)
+-- 
+2.23.0
+

@@ -26,7 +26,7 @@ function usage()
 {
     cat <<EOF
 Usage: 
-./$(basename $0) -a [aarch64|x86_64] -r [repo] -d [work dir] -p [live|virtual|disk|docker] -t [rpm|image|all]
+./$(basename $0) -a [aarch64|x86_64] -r [repo] -d [work dir] -p [live|virtual|disk|docker|devdocker] -t [rpm|image|all]
 Attention!!!  you should use nohup to invoke compile, if you want background run it
 EOF
 }
@@ -68,7 +68,8 @@ function param_parse()
     ( [[ $PROFILE_TYPE != "live" ]] && \
         [[ $PROFILE_TYPE != "virtual" ]] && \
         [[ $PROFILE_TYPE != "disk" ]] && \
-        [[ $PROFILE_TYPE != "docker" ]] ) && \
+        [[ $PROFILE_TYPE != "docker" ]] && \
+        [[ $PROFILE_TYPE != "devdocker" ]] ) && \
         log_error "specified profile type not support" && usage && return 1
 
     ( [[ $BUILD_TYPE != "rpm" ]] && \

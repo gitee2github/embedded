@@ -21,7 +21,7 @@ Usage:
 -a [aarch64|x86_64]
 -r [repo]
 -d [work dir]
--p [live|virtual|disk|docker]
+-p [live|virtual|disk|docker|devdocker]
 EOF
 }
 
@@ -59,7 +59,8 @@ function param_parse()
     ( [[ $PROFILE_TYPE != "live" ]] && \
         [[ $PROFILE_TYPE != "virtual" ]] && \
         [[ $PROFILE_TYPE != "disk" ]] && \
-        [[ $PROFILE_TYPE != "docker" ]] ) && \
+        [[ $PROFILE_TYPE != "docker" ]] && \
+        [[ $PROFILE_TYPE != "devdocker" ]] ) && \
         log_error "specified profile type not support" && usage && return 1
 
     return 0

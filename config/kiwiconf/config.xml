@@ -13,6 +13,7 @@
         <profile name="virtual" description="Virtual image of openEuler-embedded"/>
         <profile name="disk" description="OEM image of openEuler-embedded"/>
         <profile name="docker" description="Docker image of openEuler-embedded"/>
+        <profile name="devdocker" description="Developer docker image of openEuler-embedded"/>
     </profiles>
     <preferences>
         <version>1.0.0</version>
@@ -46,7 +47,7 @@
             </oemconfig>
         </type>
     </preferences>
-    <preferences profiles="docker">
+    <preferences profiles="docker,devdocker">
         <type image="docker" container="openeuler-embedded">
             <machine>
                 <vmnic interface="eth0" mode="veth"/>
@@ -106,6 +107,12 @@
     </packages>
     <packages type="bootstrap" patternType="onlyRequired">
         <package name="filesystem"/>
+    </packages>
+    <packages type="bootstrap" patternType="onlyRequired" profiles="devdocker">
+        <package name="rpm-build"/>
+        <package name="make"/>
+        <package name="make_cross_compiler_aarch64"/>
+        <package name="make_cross_compiler_x86"/>
     </packages>
     <!--delete-->
     <packages type="delete" profiles="docker">

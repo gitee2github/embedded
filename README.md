@@ -11,16 +11,16 @@
 ```Usage: 
 Usage: 
 
-./build.sh -a [aarch64|x86_64] -r [repo] -d [work dir] -p [live|virtual|disk|docker] -t [rpm|image|all]
+./build.sh -a [aarch64|x86_64] -r [repo] -d [work dir] -p [live|virtual|disk|docker|devdocker] -t [rpm|image|all]
 ```
 
 各参数作用说明如下：
 
-1）-r，指定repo文件，格式为dnf/yum的配置文件格式，可参考[文档1](https://docs.openeuler.org/zh/docs/20.03_LTS/docs/Administration/%E4%BD%BF%E7%94%A8DNF%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E5%8C%85.html "使用DNF管理软件包")。
+1）-r，指定repo文件，格式为dnf/yum的配置文件格式，可参考[文档1](https://docs.openeuler.org/zh/docs/20.03_LTS/docs/Administration/%E4%BD%BF%E7%94%A8DNF%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E5%8C%85.html "使用DNF管理软件包")。软件包仓应含gcc/make/rpm-build等完整编译工具链及其依赖
 
 2）-d，指定编译过程使用的工作目录，所有中间文件以及结果都存放在该目录。由于编译过程需要使用较大磁盘空间，该目录应当位于具有**≥20G**剩余空间的磁盘中。
 
-3）-p，指定编译所得镜像类型，目前稳定支持docker镜像。
+3）-p，指定编译所得镜像类型，目前稳定支持docker镜像和devdocker(开发者镜像）。
 
 4）-t，指定编译类型，rpm是指根据源码和补丁编译得到rpm仓库；image是指根据给定repo编译指定镜像；all将会按顺序执行rpm和image指定的编译过程。
 
@@ -88,6 +88,16 @@ kiwi创建完系统目录调用images.sh。该脚本可用于裁减根目录中�
 docker load -i openEuler-embedded.xxx-xxx.docker.tar.xz
 docker run --rm --privileged --name embedded-test -v `pwd`:/data -itd openeuler-embedded init
 docker exec -it embedded-test bash
+```
+
+用户也可以使用openeuler-embedded-sig基于该仓库编译所得，托管在华为云的镜像，下载方式如下：
+```
+# 开发者docker镜像
+docker pull swr.cn-east-3.myhuaweicloud.com/openeuler-embedded/openeuler-embedded:developer-x86_64
+docker pull swr.cn-east-3.myhuaweicloud.com/openeuler-embedded/openeuler-embedded:developer-aarch64
+# 嵌入式docker镜像
+docker pull swr.cn-east-3.myhuaweicloud.com/openeuler-embedded/openeuler-embedded:aarch64
+docker pull swr.cn-east-3.myhuaweicloud.com/openeuler-embedded/openeuler-embedded:x86_64
 ```
 
 #### 5 依赖

@@ -1,3 +1,15 @@
+[crosscompiler-embedded]
+name=crosscompiler=embedded
+baseurl=http://124.71.190.174:82/cross_compiler/$basearch/
+enabled=1
+gpgcheck=0
+priority=10
+[crosscompiler-embedded-x86]
+name=embedded-crosscompiler-x86
+baseurl=http://124.71.190.174:82/cross_compiler_x86/$basearch/
+enabled=1
+gpgcheck=0
+priority=10
 [openeuler-standard]
 name=openeuler-standard
 baseurl=http://119.3.219.20:82/openEuler:/20.03:/LTS/standard_$basearch/

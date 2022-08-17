@@ -3,10 +3,10 @@
 function kiwi_init()
 {
     local repofile=${REPO_FILE}
-    
+
     local kiwirpm="python3-kiwi skopeo umoci"
     which kiwi &> /dev/null || dnf install -y $kiwirpm -c "${repofile}" $(sed -n "s@name=@--repo @pg" $repofile)
-    [[ "x$(umask)" != "x0022" ]] && umask 0022g
+    [[ "x$(umask)" != "x0022" ]] && umask 0022
 
     return 0
 }

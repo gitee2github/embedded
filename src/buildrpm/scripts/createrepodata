@@ -55,8 +55,15 @@ function main()
 {
     param_parse $@
 
-    [[ $OPER = "init" ]] && repod_init $WORKDIR
-    [[ $OPER = "update" ]] && repod_update $WORKDIR
+    if [[ $OPER = "init" ]]
+    then
+        repod_init $WORKDIR
+    elif [[ $OPER = "update" ]]
+    then
+        repod_update $WORKDIR
+    else
+        return 1
+    fi
 }
 
 main $@
